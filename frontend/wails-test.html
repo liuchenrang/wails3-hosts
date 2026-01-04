@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wails API Test</title>
+</head>
+<body>
+    <h1>Wails v3 API Test</h1>
+    <div id="output"></div>
+
+    <script type="module">
+        // 测试所有可用的 window 方法
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            output.innerHTML += '<div>' + msg + '</div>';
+            console.log(msg);
+        }
+
+        log('<h2>检测 window 对象上的方法：</h2>');
+
+        // 列出所有以 HostsHandler 开头的方法
+        const methods = Object.keys(window).filter(key => key.includes('Hosts'));
+        log('找到 ' + methods.length + ' 个 Hosts 相关方法:');
+        methods.forEach(m => log('  - ' + m));
+
+        if (methods.length === 0) {
+            log('<strong style="color:red">❌ 未找到 HostsHandler 方法！</strong>');
+            log('<p>这说明 Wails 服务没有正确暴露给前端。</p>');
+        } else {
+            log('<strong style="color:green">✅ 找到 HostsHandler 方法！</strong>');
+
+            // 测试调用 GetAllGroups
+            log('<h3>测试调用 GetAllGroups:</h3>');
+            try {
+                const result = await window[methods[0]]();
+                log('<strong style="color:green">✅ 调用成功！</strong>');
+                log('结果: ' + JSON.stringify(result, null, 2));
+            } catch (error) {
+                log('<strong style="color:red">❌ 调用失败: ' + error.message + '</strong>');
+            }
+        }
+    </script>
+</body>
+</html>
