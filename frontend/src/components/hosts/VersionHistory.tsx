@@ -97,6 +97,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
                         size="sm"
                         variant="outline"
                         onClick={() => setRollbackVersion(version)}
+                        className="min-w-[4em] whitespace-nowrap"
                       >
                         <RotateCcw className="mr-1 h-4 w-4" />
                         {t('versions.rollback')}
