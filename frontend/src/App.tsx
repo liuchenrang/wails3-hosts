@@ -13,6 +13,7 @@ import { AboutDialog } from './components/ui/AboutDialog'
 import { Button } from './components/ui/Button'
 import { Modal } from './components/ui/Modal'
 import { Input } from './components/ui/Input'
+import { VibeKanbanWebCompanion } from 'vibe-kanban-web-companion'
 import './i18n'
 import './index.css'
 import React from "react"
@@ -235,133 +236,136 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-background text-foreground">
-      {/* 顶部栏 */}
-      <div className="flex items-center justify-between border-b px-6 py-3">
-        <div>
-          <h1 className="text-xl font-bold">{t('app.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('app.subtitle')}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowVersions(true)}
-          >
-            <History className="mr-2 h-4 w-4" />
-            {t('versions.title')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleTheme}
-          >
-            {theme === 'light' ? (
-              <Moon className="h-4 w-4" />
-            ) : (
-              <Sun className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </div>
-
-      {/* 主内容区 */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* 左侧分组列表 - 紧贴左侧 */}
-        <Sidebar
-            groups={groups}
-            selectedGroupId={selectedGroupId}
-            // onSelectGroup={setSelectedGroupId}
-            onCreateGroup={handleCreateGroup}
-            onDeleteGroup={handleDeleteGroup}
-            onToggleGroup={handleToggleGroup} onSelectGroup={function (group: HostsGroup): void {
-          throw new Error("Function not implemented.")
-        }}        />
-
-        {/* 右侧主面板 */}
-        <MainPanel
-          group={selectedGroup}
-          onUpdateEntry={handleUpdateEntry}
-          onAddEntry={handleAddEntry}
-          onDeleteEntry={handleDeleteEntry}
-          onApply={handleApply}
-          onPreview={handlePreview}
-          onBatchUpdate={handleBatchUpdateEntries}
-        />
-      </div>
-
-      {/* 预览模态框 */}
-      <Modal
-        isOpen={showPreview}
-        onClose={() => setShowPreview(false)}
-        title={t('mainPanel.preview')}
-        footer={
-          <Button onClick={() => setShowPreview(false)}>{t('common.cancel')}</Button>
-        }
-      >
-        <pre className="max-h-96 overflow-auto rounded bg-muted p-4 text-sm">
-          {previewContent}
-        </pre>
-      </Modal>
-
-      {/* Sudo 密码模态框 */}
-      <Modal
-        isOpen={showSudoPrompt}
-        onClose={() => setShowSudoPrompt(false)}
-        title={t('sudo.title')}
-        footer={
-          <>
+    <>
+      <VibeKanbanWebCompanion />
+      <div className="flex h-screen flex-col bg-background text-foreground">
+        {/* 顶部栏 */}
+        <div className="flex items-center justify-between border-b px-6 py-3">
+          <div>
+            <h1 className="text-xl font-bold">{t('app.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('app.subtitle')}</p>
+          </div>
+          <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => setShowSudoPrompt(false)}
+              size="sm"
+              onClick={() => setShowVersions(true)}
             >
-              {t('common.cancel')}
+              <History className="mr-2 h-4 w-4" />
+              {t('versions.title')}
             </Button>
-            <Button onClick={handleConfirmApply}>{t('mainPanel.apply')}</Button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">{t('sudo.description')}</p>
-          <div>
-            <label className="block text-sm font-medium">{t('sudo.password')}</label>
-            <Input
-              type="password"
-              value={sudoPassword}
-              onChange={e => setSudoPassword(e.target.value)}
-              placeholder={t('sudo.passwordPlaceholder')}
-              className="mt-1"
-            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+            >
+              {theme === 'light' ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )}
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground">{t('mainPanel.applyShortcut')}</p>
         </div>
-      </Modal>
 
-      {/* 冲突警告 */}
-      {showConflicts && (
-        <ConflictAlert
-          conflicts={conflicts}
-          onIgnore={handleIgnoreConflicts}
-          onResolve={() => setShowConflicts(false)}
+        {/* 主内容区 */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* 左侧分组列表 - 紧贴左侧 */}
+          <Sidebar
+              groups={groups}
+              selectedGroupId={selectedGroupId}
+              // onSelectGroup={setSelectedGroupId}
+              onCreateGroup={handleCreateGroup}
+              onDeleteGroup={handleDeleteGroup}
+              onToggleGroup={handleToggleGroup} onSelectGroup={function (group: HostsGroup): void {
+            throw new Error("Function not implemented.")
+          }}          />
+
+          {/* 右侧主面板 */}
+          <MainPanel
+            group={selectedGroup}
+            onUpdateEntry={handleUpdateEntry}
+            onAddEntry={handleAddEntry}
+            onDeleteEntry={handleDeleteEntry}
+            onApply={handleApply}
+            onPreview={handlePreview}
+            onBatchUpdate={handleBatchUpdateEntries}
+          />
+        </div>
+
+        {/* 预览模态框 */}
+        <Modal
+          isOpen={showPreview}
+          onClose={() => setShowPreview(false)}
+          title={t('mainPanel.preview')}
+          footer={
+            <Button onClick={() => setShowPreview(false)}>{t('common.cancel')}</Button>
+          }
+        >
+          <pre className="max-h-96 overflow-auto rounded bg-muted p-4 text-sm">
+            {previewContent}
+          </pre>
+        </Modal>
+
+        {/* Sudo 密码模态框 */}
+        <Modal
+          isOpen={showSudoPrompt}
+          onClose={() => setShowSudoPrompt(false)}
+          title={t('sudo.title')}
+          footer={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setShowSudoPrompt(false)}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleConfirmApply}>{t('mainPanel.apply')}</Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">{t('sudo.description')}</p>
+            <div>
+              <label className="block text-sm font-medium">{t('sudo.password')}</label>
+              <Input
+                type="password"
+                value={sudoPassword}
+                onChange={e => setSudoPassword(e.target.value)}
+                placeholder={t('sudo.passwordPlaceholder')}
+                className="mt-1"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">{t('mainPanel.applyShortcut')}</p>
+          </div>
+        </Modal>
+
+        {/* 冲突警告 */}
+        {showConflicts && (
+          <ConflictAlert
+            conflicts={conflicts}
+            onIgnore={handleIgnoreConflicts}
+            onResolve={() => setShowConflicts(false)}
+          />
+        )}
+
+        {/* 版本历史 */}
+        <VersionHistory
+          isOpen={showVersions}
+          onClose={() => setShowVersions(false)}
+          versions={versions}
+          onRollback={handleRollback}
         />
-      )}
 
-      {/* 版本历史 */}
-      <VersionHistory
-        isOpen={showVersions}
-        onClose={() => setShowVersions(false)}
-        versions={versions}
-        onRollback={handleRollback}
-      />
-
-      {/* 关于我们对话框 */}
-      <AboutDialog
-        isOpen={showAbout}
-        onClose={() => setShowAbout(false)}
-        version={aboutInfo.version}
-        email={aboutInfo.email}
-      />
-    </div>
+        {/* 关于我们对话框 */}
+        <AboutDialog
+          isOpen={showAbout}
+          onClose={() => setShowAbout(false)}
+          version={aboutInfo.version}
+          email={aboutInfo.email}
+        />
+      </div>
+    </>
   )
 }
 
