@@ -114,12 +114,13 @@ export function MainPanel({
           </Button>
           <Button
             variant="outline"
+            className={"w-[220px]"}
             onClick={onPreview}
           >
-            <Eye className="mr-2 h-4 w-4" />
+            <Eye className="mr-2 h-4 " />
             {t('mainPanel.preview')}
           </Button>
-          <Button onClick={handleSaveMemo}>
+          <Button onClick={handleSaveMemo}        className="w-[120px]">
             <Save className="mr-2 h-4 w-4" />
             {t('mainPanel.apply')}
           </Button>

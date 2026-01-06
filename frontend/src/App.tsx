@@ -252,10 +252,9 @@ function App() {
             <h1 className="text-xl font-bold">{t('app.title')}</h1>
             <p className="text-sm text-muted-foreground">{t('app.subtitle')}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center justify-end">
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setShowVersions(true)}
             >
               <History className="mr-2 h-4 w-4" />

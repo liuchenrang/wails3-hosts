@@ -20,6 +20,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center rounded-md text-sm font-medium',
           'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           'disabled:pointer-events-none disabled:opacity-50',
+          'w-auto', // 明确设置宽度自适应，避免继承拉伸样式
 
           // 变体样式
           {
