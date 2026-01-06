@@ -50,6 +50,34 @@ func main() {
 		},
 	})
 
+	// 创建应用菜单
+	aboutMenu := application.NewMenuItem("关于我们")
+	aboutMenu.OnClick(func(_ *application.Context) {
+		// 触发前端显示关于对话框
+		app.Event.Emit("show-about-dialog", map[string]interface{}{
+			"version": "1.0.0",
+			"email":   "support@hostsmanager.com",
+		})
+	})
+
+	versionHistoryMenu := application.NewMenuItem("版本历史")
+	versionHistoryMenu.OnClick(func(_ *application.Context) {
+		// 触发前端显示版本历史
+		app.Event.Emit("show-version-history")
+	})
+
+	// 设置应用菜单
+	app.Menu.SetApplicationMenu(application.NewMenuFromItems(
+		application.NewAppMenu(),
+		application.NewEditMenu(),
+		application.NewSubmenu("视图", application.NewMenuFromItems(
+			versionHistoryMenu,
+		)),
+		application.NewSubmenu("帮助", application.NewMenuFromItems(
+			aboutMenu,
+		)),
+	))
+
 	// 创建主窗口
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title: "Hosts Manager",

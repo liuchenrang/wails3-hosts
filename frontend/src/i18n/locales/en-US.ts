@@ -96,5 +96,12 @@ export const enUS = {
       ips: 'IP Addresses',
       ignore: 'Ignore and Continue',
     },
+    // About
+    about: {
+      title: 'About Us',
+      version: 'Version',
+      email: 'Contact Email',
+      description: 'A simple and efficient hosts file management tool',
+    },
   },
 }

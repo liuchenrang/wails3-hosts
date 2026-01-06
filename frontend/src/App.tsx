@@ -9,6 +9,7 @@ import { Sidebar } from './components/layout/Sidebar'
 import { MainPanel } from './components/layout/MainPanel'
 import { VersionHistory } from './components/hosts/VersionHistory'
 import { ConflictAlert } from './components/hosts/ConflictAlert'
+import { AboutDialog } from './components/ui/AboutDialog'
 import { Button } from './components/ui/Button'
 import { Modal } from './components/ui/Modal'
 import { Input } from './components/ui/Input'
@@ -55,6 +56,8 @@ function App() {
   const [versions, setVersions] = useState<HostsVersion[]>([])
   const [conflicts, setConflicts] = useState({})
   const [showConflicts, setShowConflicts] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
+  const [aboutInfo, setAboutInfo] = useState<{ version?: string; email?: string }>({})
 
   const selectedGroup = groups.find(g => g.id === selectedGroupId) || null
 
@@ -69,6 +72,20 @@ function App() {
   useEffect(() => {
     loadGroups()
     loadVersions()
+
+    // 监听来自 Wails 后端的事件
+    if (typeof window !== 'undefined' && (window as any).EventsOn) {
+      // 监听"关于我们"对话框事件
+      ;(window as any).EventsOn('show-about-dialog', (data: { version?: string; email?: string }) => {
+        setAboutInfo(data)
+        setShowAbout(true)
+      })
+
+      // 监听版本历史事件
+      ;(window as any).EventsOn('show-version-history', () => {
+        setShowVersions(true)
+      })
+    }
   }, [])
 
   const loadGroups = async () => {
@@ -335,6 +352,14 @@ function App() {
         onClose={() => setShowVersions(false)}
         versions={versions}
         onRollback={handleRollback}
+      />
+
+      {/* 关于我们对话框 */}
+      <AboutDialog
+        isOpen={showAbout}
+        onClose={() => setShowAbout(false)}
+        version={aboutInfo.version}
+        email={aboutInfo.email}
       />
     </div>
   )

@@ -96,5 +96,12 @@ export const zhCN = {
       ips: 'IP 地址',
       ignore: '忽略并继续',
     },
+    // 关于我们
+    about: {
+      title: '关于我们',
+      version: '版本',
+      email: '联系邮箱',
+      description: '一个简单高效的 hosts 文件管理工具',
+    },
   },
 }

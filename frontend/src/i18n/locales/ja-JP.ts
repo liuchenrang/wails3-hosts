@@ -96,5 +96,12 @@ export const jaJP = {
       ips: 'IP アドレス',
       ignore: '無視して続行',
     },
+    // 私たちについて
+    about: {
+      title: '私たちについて',
+      version: 'バージョン',
+      email: '連絡先メール',
+      description: 'シンプルで効率的な hosts ファイル管理ツール',
+    },
   },
 }
