@@ -62,45 +62,46 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
                   key={version.id}
                   className="rounded-lg border bg-card p-4 transition-colors hover:bg-accent"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1">
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className="text-sm font-mono text-muted-foreground">
-                          #{index + 1}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-mono text-muted-foreground">
+                        #{index + 1}
+                      </span>
+                      <span className="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
+                        {getSourceText(version.source)}
+                      </span>
+                      {version.age > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {version.age} {t('versions.timestamp')}前
                         </span>
-                        <span className="rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                          {getSourceText(version.source)}
-                        </span>
-                        {version.age > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            {version.age} {t('versions.timestamp')}前
-                          </span>
-                        )}
-                      </div>
-                      <div className="mb-1 text-sm font-medium">{version.description}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {t('versions.timestamp')}: {version.timestamp}
-                      </div>
-                      {version.content && (
-                        <details className="mt-2">
-                          <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
-                            查看内容
-                          </summary>
-                          <pre className="mt-2 max-h-32 overflow-auto rounded bg-muted p-2 text-xs">
-                            {version.content.substring(0, 500)}
-                            {version.content.length > 500 && '...'}
-                          </pre>
-                        </details>
                       )}
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setRollbackVersion(version)}
-                    >
-                      <RotateCcw className="mr-1 h-3 w-3" />
-                      {t('versions.rollback')}
-                    </Button>
+                    <div className="text-sm font-medium">{version.description}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('versions.timestamp')}: {version.timestamp}
+                    </div>
+                    {version.content && (
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+                          查看内容
+                        </summary>
+                        <pre className="mt-2 max-h-32 overflow-auto rounded bg-muted p-2 text-xs">
+                          {version.content.substring(0, 500)}
+                          {version.content.length > 500 && '...'}
+                        </pre>
+                      </details>
+                    )}
+                    <div className="flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setRollbackVersion(version)}
+                      >
+                        <RotateCcw className="mr-1 h-4 w-4" />
+                        {t('versions.rollback')}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
