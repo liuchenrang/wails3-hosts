@@ -234,6 +234,14 @@ function App() {
     }
   }
 
+  const handleSelectGroup = (group: HostsGroup) => {
+    setSelectedGroupId(group.id)
+  }
+
+  const handleDoubleClickGroup = (group: HostsGroup) => {
+    setSelectedGroupId(group.id)
+  }
+
   return (
     <>
       <VibeKanbanWebCompanion />
@@ -273,12 +281,12 @@ function App() {
           <Sidebar
               groups={groups}
               selectedGroupId={selectedGroupId}
-              // onSelectGroup={setSelectedGroupId}
+              onSelectGroup={handleSelectGroup}
               onCreateGroup={handleCreateGroup}
               onDeleteGroup={handleDeleteGroup}
-              onToggleGroup={handleToggleGroup} onSelectGroup={function (group: HostsGroup): void {
-            throw new Error("Function not implemented.")
-          }}          />
+              onToggleGroup={handleToggleGroup}
+              onDoubleClickGroup={handleDoubleClickGroup}
+          />
 
           {/* 右侧主面板 */}
           <MainPanel

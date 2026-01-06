@@ -37,7 +37,7 @@ export function MainPanel({
       .map(entry => {
         const comment = entry.comment ? ` # ${entry.comment}` : ''
         const disabled = entry.enabled ? '' : '# '
-        return `${disabled}${entry.ip}\t${entry.hostname}${comment}`
+        return `${disabled}${entry.ip} ${entry.hostname}${comment}`
       })
       .join('\n')
   }, [group])
@@ -131,7 +131,7 @@ export function MainPanel({
         <Textarea
           value={memoContent}
           onChange={e => setMemoContent(e.target.value)}
-          placeholder="127.0.0.1&#10;localhost.local # 本地开发"
+          placeholder="127.0.0.1 localhost&#10;192.168.0.1 www.mytest.com"
           className="h-full w-full resize-none font-mono text-sm"
           spellCheck={false}
         />

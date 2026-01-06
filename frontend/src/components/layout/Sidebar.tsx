@@ -15,6 +15,7 @@ interface SidebarProps {
   onCreateGroup: (name: string, description: string) => void
   onDeleteGroup: (id: string) => void
   onToggleGroup: (id: string, enabled: boolean) => void
+  onDoubleClickGroup: (group: HostsGroup) => void
 }
 // 侧边栏组件
 export function Sidebar({
@@ -24,6 +25,7 @@ export function Sidebar({
   onCreateGroup,
   onDeleteGroup,
   onToggleGroup,
+  onDoubleClickGroup,
 }: SidebarProps) {
   const { t } = useTranslation()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -86,6 +88,7 @@ export function Sidebar({
                       : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50'
                   )}
                   onClick={() => onSelectGroup(group)}
+                  onDoubleClick={() => onDoubleClickGroup(group)}
                 >
                   {/* 分组头部 */}
                   <div className="flex items-center p-3">
