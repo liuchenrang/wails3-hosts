@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/chen/wails3-demo/internal/domain/entity"
+	"github.com/chen/wails3-hosts/internal/domain/entity"
 )
 
 // VersionRepository 定义版本历史的仓储接口

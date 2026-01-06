@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 
-	"github.com/chen/wails3-demo/internal/application/dto"
-	"github.com/chen/wails3-demo/internal/application/service"
+	"github.com/chen/wails3-hosts/internal/application/dto"
+	"github.com/chen/wails3-hosts/internal/application/service"
 )
 
 // HostsHandler hosts 管理 Wails 服务处理器
@@ -140,8 +140,8 @@ func (h *HostsHandler) GetVersions(limit int) ([]dto.HostsVersionDTO, error) {
 // RollbackToVersion 回滚到指定版本
 func (h *HostsHandler) RollbackToVersion(versionID, sudoPassword string) error {
 	req := dto.RollbackRequest{
-		VersionID:     versionID,
-		SudoPassword:  sudoPassword,
+		VersionID:    versionID,
+		SudoPassword: sudoPassword,
 	}
 	return h.appService.RollbackToVersion(context.Background(), req)
 }

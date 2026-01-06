@@ -3,7 +3,7 @@ package valueobject
 import (
 	"strings"
 
-	"github.com/chen/wails3-demo/internal/domain/entity"
+	"github.com/chen/wails3-hosts/internal/domain/entity"
 )
 
 // HostsContent hosts 文件内容值对象

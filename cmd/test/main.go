@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/chen/wails3-demo/internal/application/dto"
-	"github.com/chen/wails3-demo/internal/application/service"
-	"github.com/chen/wails3-demo/internal/infrastructure/persistence"
-	"github.com/chen/wails3-demo/internal/infrastructure/system"
+	"github.com/chen/wails3-hosts/internal/application/dto"
+	"github.com/chen/wails3-hosts/internal/application/service"
+	"github.com/chen/wails3-hosts/internal/infrastructure/persistence"
+	"github.com/chen/wails3-hosts/internal/infrastructure/system"
 )
 
 func main() {

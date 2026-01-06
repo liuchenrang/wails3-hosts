@@ -1,6 +1,6 @@
 import { HostsGroup, HostsVersion } from '../types/hosts'
 // Wails v3 自动生成的绑定
-import * as HostsHandler from '../../bindings/github.com/chen/wails3-demo/internal/interface/handler/hostshandler'
+import * as HostsHandler from '../../bindings/github.com/chen/wails3-hosts/internal/interface/handler/hostshandler'
 
 // Wails v3 API 调用封装
 // 单一职责: 封装所有与后端的 API 调用

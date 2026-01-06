@@ -4,22 +4,22 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chen/wails3-demo/internal/application/dto"
-	"github.com/chen/wails3-demo/internal/domain/entity"
-	"github.com/chen/wails3-demo/internal/domain/repository"
-	"github.com/chen/wails3-demo/internal/domain/service"
-	"github.com/chen/wails3-demo/internal/infrastructure/system"
+	"github.com/chen/wails3-hosts/internal/application/dto"
+	"github.com/chen/wails3-hosts/internal/domain/entity"
+	"github.com/chen/wails3-hosts/internal/domain/repository"
+	"github.com/chen/wails3-hosts/internal/domain/service"
+	"github.com/chen/wails3-hosts/internal/infrastructure/system"
 )
 
 // HostsApplicationService hosts 应用服务
 // 单一职责: 协调领域对象和基础设施服务完成业务用例
 // DDD: 应用服务是领域模型的门面，处理事务边界
 type HostsApplicationService struct {
-	hostsRepo       repository.HostsRepository
-	versionRepo     repository.VersionRepository
-	domainService   *service.HostsDomainService
-	hostsFileOp     *system.HostsFileOperator
-	sudoManager     *system.SudoManager
+	hostsRepo     repository.HostsRepository
+	versionRepo   repository.VersionRepository
+	domainService *service.HostsDomainService
+	hostsFileOp   *system.HostsFileOperator
+	sudoManager   *system.SudoManager
 }
 
 // NewHostsApplicationService 创建应用服务实例

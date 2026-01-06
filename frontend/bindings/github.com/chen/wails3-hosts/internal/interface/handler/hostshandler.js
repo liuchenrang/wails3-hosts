@@ -26,7 +26,7 @@ import * as dto$0 from "../../application/dto/models.js";
  * @returns {$CancellablePromise<void>}
  */
 export function AddEntry(groupID, ip, hostname, comment) {
-    return $Call.ByID(1959519417, groupID, ip, hostname, comment);
+    return $Call.ByID(2592771619, groupID, ip, hostname, comment);
 }
 
 /**
@@ -35,7 +35,7 @@ export function AddEntry(groupID, ip, hostname, comment) {
  * @returns {$CancellablePromise<void>}
  */
 export function ApplyHosts(sudoPassword) {
-    return $Call.ByID(1310576283, sudoPassword);
+    return $Call.ByID(3146797025, sudoPassword);
 }
 
 /**
@@ -45,7 +45,7 @@ export function ApplyHosts(sudoPassword) {
  * @returns {$CancellablePromise<void>}
  */
 export function BatchUpdateEntries(groupID, entries) {
-    return $Call.ByID(2804721115, groupID, entries);
+    return $Call.ByID(927117481, groupID, entries);
 }
 
 /**
@@ -55,7 +55,7 @@ export function BatchUpdateEntries(groupID, entries) {
  * @returns {$CancellablePromise<dto$0.HostsGroupDTO | null>}
  */
 export function CreateGroup(name, description) {
-    return $Call.ByID(2314392803, name, description).then(/** @type {($result: any) => any} */(($result) => {
+    return $Call.ByID(739654197, name, description).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType1($result);
     }));
 }
@@ -67,7 +67,7 @@ export function CreateGroup(name, description) {
  * @returns {$CancellablePromise<void>}
  */
 export function DeleteEntry(groupID, entryID) {
-    return $Call.ByID(1963073385, groupID, entryID);
+    return $Call.ByID(3542956047, groupID, entryID);
 }
 
 /**
@@ -76,7 +76,7 @@ export function DeleteEntry(groupID, entryID) {
  * @returns {$CancellablePromise<void>}
  */
 export function DeleteGroup(id) {
-    return $Call.ByID(1569289702, id);
+    return $Call.ByID(817392280, id);
 }
 
 /**
@@ -84,7 +84,7 @@ export function DeleteGroup(id) {
  * @returns {$CancellablePromise<{ [_: string]: string[] }>}
  */
 export function DetectConflicts() {
-    return $Call.ByID(466235078).then(/** @type {($result: any) => any} */(($result) => {
+    return $Call.ByID(2012154560).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType3($result);
     }));
 }
@@ -94,7 +94,7 @@ export function DetectConflicts() {
  * @returns {$CancellablePromise<string>}
  */
 export function GeneratePreview() {
-    return $Call.ByID(3542702661);
+    return $Call.ByID(1305520819);
 }
 
 /**
@@ -102,7 +102,7 @@ export function GeneratePreview() {
  * @returns {$CancellablePromise<dto$0.HostsGroupDTO[]>}
  */
 export function GetAllGroups() {
-    return $Call.ByID(4037853803).then(/** @type {($result: any) => any} */(($result) => {
+    return $Call.ByID(611128889).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType4($result);
     }));
 }
@@ -113,7 +113,7 @@ export function GetAllGroups() {
  * @returns {$CancellablePromise<dto$0.HostsGroupDTO | null>}
  */
 export function GetGroupByID(id) {
-    return $Call.ByID(2047575507, id).then(/** @type {($result: any) => any} */(($result) => {
+    return $Call.ByID(3605839625, id).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType1($result);
     }));
 }
@@ -124,7 +124,7 @@ export function GetGroupByID(id) {
  * @returns {$CancellablePromise<dto$0.HostsVersionDTO[]>}
  */
 export function GetVersions(limit) {
-    return $Call.ByID(1817782813, limit).then(/** @type {($result: any) => any} */(($result) => {
+    return $Call.ByID(4170854695, limit).then(/** @type {($result: any) => any} */(($result) => {
         return $$createType6($result);
     }));
 }
@@ -134,7 +134,7 @@ export function GetVersions(limit) {
  * @returns {$CancellablePromise<boolean>}
  */
 export function IsSudoPasswordCached() {
-    return $Call.ByID(984379094);
+    return $Call.ByID(633975440);
 }
 
 /**
@@ -144,7 +144,7 @@ export function IsSudoPasswordCached() {
  * @returns {$CancellablePromise<void>}
  */
 export function RollbackToVersion(versionID, sudoPassword) {
-    return $Call.ByID(751981923, versionID, sudoPassword);
+    return $Call.ByID(2277117429, versionID, sudoPassword);
 }
 
 /**
@@ -154,7 +154,7 @@ export function RollbackToVersion(versionID, sudoPassword) {
  * @returns {$CancellablePromise<void>}
  */
 export function ToggleGroup(id, enabled) {
-    return $Call.ByID(1646406531, id, enabled);
+    return $Call.ByID(2240039681, id, enabled);
 }
 
 /**
@@ -167,7 +167,7 @@ export function ToggleGroup(id, enabled) {
  * @returns {$CancellablePromise<void>}
  */
 export function UpdateEntry(groupID, entryID, ip, hostname, comment) {
-    return $Call.ByID(3616651747, groupID, entryID, ip, hostname, comment);
+    return $Call.ByID(1271603097, groupID, entryID, ip, hostname, comment);
 }
 
 /**
@@ -178,7 +178,7 @@ export function UpdateEntry(groupID, entryID, ip, hostname, comment) {
  * @returns {$CancellablePromise<void>}
  */
 export function UpdateGroup(id, name, description) {
-    return $Call.ByID(587125660, id, name, description);
+    return $Call.ByID(1333379478, id, name, description);
 }
 
 /**
@@ -187,7 +187,7 @@ export function UpdateGroup(id, name, description) {
  * @returns {$CancellablePromise<[boolean, string]>}
  */
 export function ValidateSudoPassword(password) {
-    return $Call.ByID(2965528286, password);
+    return $Call.ByID(2021522024, password);
 }
 
 // Private type creation functions

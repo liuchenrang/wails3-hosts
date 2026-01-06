@@ -6,22 +6,22 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/chen/wails3-demo/internal/domain/entity"
+	"github.com/chen/wails3-hosts/internal/domain/entity"
 )
 
 // JSONStorage JSON 文件存储实现
 // 单一职责: 负责配置和版本历史的 JSON 文件持久化
 // DDD: 基础设施层实现领域层定义的仓储接口
 type JSONStorage struct {
-	configPath  string
+	configPath   string
 	versionsPath string
-	mu          sync.RWMutex
+	mu           sync.RWMutex
 }
 
 // ConfigData 配置文件数据结构
 type ConfigData struct {
-	Groups  []*entity.HostsGroup `json:"groups"`
-	Settings Settings            `json:"settings"`
+	Groups   []*entity.HostsGroup `json:"groups"`
+	Settings Settings             `json:"settings"`
 }
 
 // Settings 应用设置

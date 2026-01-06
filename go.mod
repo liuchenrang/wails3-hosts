@@ -1,4 +1,4 @@
-module github.com/chen/wails3-demo
+module github.com/chen/wails3-hosts
 
 go 1.24.0
 

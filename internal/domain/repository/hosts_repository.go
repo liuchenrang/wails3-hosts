@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/chen/wails3-demo/internal/domain/entity"
+	"github.com/chen/wails3-hosts/internal/domain/entity"
 )
 
 // HostsRepository 定义 hosts 分组的仓储接口

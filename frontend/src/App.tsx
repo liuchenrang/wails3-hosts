@@ -17,7 +17,6 @@ import { VibeKanbanWebCompanion } from 'vibe-kanban-web-companion'
 import './i18n'
 import './index.css'
 import React from "react"
-
 // 调试：检查 Wails 服务是否可用
 if (typeof window !== 'undefined') {
   console.log('🔍 检查 window 对象属性:')

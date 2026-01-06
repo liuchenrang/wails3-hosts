@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/chen/wails3-demo/internal/domain/entity"
+	"github.com/chen/wails3-hosts/internal/domain/entity"
 )
 
 // HostsDomainService hosts 领域服务
