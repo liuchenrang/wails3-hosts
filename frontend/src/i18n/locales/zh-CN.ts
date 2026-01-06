@@ -40,6 +40,12 @@ export const zhCN = {
       apply: '应用配置',
       applyShortcut: '快捷键: ⌘S / Ctrl+S',
       reset: '重置',
+      validation: {
+        title: '格式错误',
+        invalidFormat: '格式无效，应为：IP 地址 + 域名',
+        invalidIP: 'IP 地址格式无效: {{ip}}',
+        invalidHostname: '域名格式无效: {{hostname}}',
+      },
     },
     // 表单
     form: {

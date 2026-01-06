@@ -40,6 +40,12 @@ export const enUS = {
       apply: 'Apply Configuration',
       applyShortcut: 'Shortcut: ⌘S / Ctrl+S',
       reset: 'Reset',
+      validation: {
+        title: 'Format Error',
+        invalidFormat: 'Invalid format, should be: IP address + hostname',
+        invalidIP: 'Invalid IP address format: {{ip}}',
+        invalidHostname: 'Invalid hostname format: {{hostname}}',
+      },
     },
     // Form
     form: {

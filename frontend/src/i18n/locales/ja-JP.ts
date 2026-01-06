@@ -40,6 +40,12 @@ export const jaJP = {
       apply: '設定を適用',
       applyShortcut: 'ショートカット: ⌘S / Ctrl+S',
       reset: 'リセット',
+      validation: {
+        title: 'フォーマットエラー',
+        invalidFormat: '無効なフォーマットです。IP アドレス + ホスト名である必要があります',
+        invalidIP: '無効な IP アドレス形式: {{ip}}',
+        invalidHostname: '無効なホスト名形式: {{hostname}}',
+      },
     },
     // フォーム
     form: {
