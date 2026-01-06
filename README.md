@@ -2,6 +2,21 @@
 
 一个类似 SwitchHosts 的跨平台 hosts 文件管理工具，采用 DDD（领域驱动设计）架构开发。
 
+## ⚡ 快速开始
+
+```bash
+# 安装依赖并启动开发模式
+make quick
+
+# 或使用 npm
+npm run quick
+
+# 或直接使用 wails3
+wails3 dev
+```
+
+详细开发指南请查看: [QUICKSTART.md](./QUICKSTART.md) | [DEVELOPMENT.md](./DEVELOPMENT.md)
+
 ## 功能特性
 
 - ✅ **分组管理**: 左侧分组列表，支持创建、编辑、删除、启用/禁用分组
@@ -11,6 +26,41 @@
 - ✅ **版本历史**: 自动保存历史版本，支持一键回滚
 - ✅ **国际化**: 支持中文、英文、日文，根据系统语言自动选择
 - ✅ **主题切换**: 支持明亮和暗色两种主题
+- ✅ **分组记忆**: 自动保存上次选择的分组，下次启动时自动加载
+
+## 🛠️ 开发命令
+
+```bash
+# 开发相关
+make dev              # 启动开发模式 (热重载)
+make dev:clean        # 清理缓存并重新启动
+make dev:frontend     # 仅启动前端开发服务器
+
+# 构建相关
+make build            # 构建应用
+make build:dev        # 构建开发版本 (含调试信息)
+make build:prod       # 构建生产版本 (优化)
+
+# 测试相关
+make test             # 运行测试
+make test:coverage    # 生成测试覆盖率报告
+make lint             # 代码检查
+make format           # 格式化代码
+
+# 清理相关
+make clean            # 清理构建产物
+make clean:all        # 深度清理 (包括缓存)
+
+# 打包相关
+make package          # 打包应用
+make package:all      # 跨平台打包
+
+# 其他
+make info             # 显示项目信息
+make bindings         # 生成前端绑定
+```
+
+所有可用命令: 运行 `make help` 或查看 [DEVELOPMENT.md](./DEVELOPMENT.md)
 
 ## 技术栈
 
@@ -24,6 +74,11 @@
 - **Tailwind CSS** + **shadcn/ui**: 现代化的 UI 组件
 - **i18next**: 完整的国际化支持
 - **Lucide React**: 精美的图标库
+
+### 开发工具
+- **Task**: 任务运行器 (可选)
+- **Make**: 构建自动化
+- **npm scripts**: 前端包管理
 
 ## 架构设计
 

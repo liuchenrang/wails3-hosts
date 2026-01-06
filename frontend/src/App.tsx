@@ -47,7 +47,14 @@ function App() {
   const { t } = useTranslation()
   const { theme, toggleTheme } = useTheme()
   const [groups, setGroups] = useState<HostsGroup[]>([])
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(() => {
+    // 从 localStorage 读取上次选择的分组
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('selectedGroupId')
+      return saved || null
+    }
+    return null
+  })
   const [previewContent, setPreviewContent] = useState('')
   const [showPreview, setShowPreview] = useState(false)
   const [showVersions, setShowVersions] = useState(false)
@@ -87,6 +94,21 @@ function App() {
       })
     }
   }, [])
+
+  // 当分组加载完成后,如果没有选中的分组或上次选中的分组不存在,则选择第一个分组
+  useEffect(() => {
+    if (groups.length > 0 && !selectedGroupId) {
+      // 没有选中的分组,选择第一个
+      setSelectedGroupId(groups[0].id)
+    } else if (groups.length > 0 && selectedGroupId) {
+      // 检查上次选中的分组是否还存在
+      const exists = groups.find(g => g.id === selectedGroupId)
+      if (!exists) {
+        // 上次选中的分组不存在了,选择第一个
+        setSelectedGroupId(groups[0].id)
+      }
+    }
+  }, [groups, selectedGroupId])
 
   const loadGroups = async () => {
     try {
@@ -236,10 +258,18 @@ function App() {
 
   const handleSelectGroup = (group: HostsGroup) => {
     setSelectedGroupId(group.id)
+    // 保存到 localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedGroupId', group.id)
+    }
   }
 
   const handleDoubleClickGroup = (group: HostsGroup) => {
     setSelectedGroupId(group.id)
+    // 保存到 localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedGroupId', group.id)
+    }
   }
 
   return (

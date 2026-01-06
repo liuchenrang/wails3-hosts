@@ -1,0 +1,35 @@
+{
+  "name": "vibe-kanban",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vibe Kanban - 基于 Wails3 的桌面应用",
+  "scripts": {
+    "start": "task dev",
+    "dev": "task dev",
+    "dev:clean": "task dev:clean",
+    "dev:frontend": "task dev:frontend",
+    "build": "task build",
+    "build:dev": "task build:dev",
+    "build:prod": "task build:prod",
+    "build:all": "task build:all",
+    "quick": "task quick",
+    "clean": "task clean",
+    "clean:all": "task clean:all",
+    "test": "task go:test",
+    "test:coverage": "task go:test:coverage",
+    "lint": "task lint",
+    "format": "task format",
+    "info": "task info",
+    "package": "task package",
+    "package:all": "task package:all",
+    "bindings": "task bindings",
+    "bindings:clean": "task bindings:clean"
+  },
+  "keywords": [
+    "wails3",
+    "desktop-app",
+    "kanban"
+  ],
+  "author": "",
+  "license": "MIT"
+}

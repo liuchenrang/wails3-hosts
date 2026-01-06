@@ -14,27 +14,222 @@ vars:
   VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
 
 tasks:
-  build:
-    summary: Builds the application
+  default:
+    summary: 默认任务 - 显示可用命令
     cmds:
-      - task: "{{OS}}:build"
+      - task -l
 
-  package:
-    summary: Packages a production build of the application
-    cmds:
-      - task: "{{OS}}:package"
-
-  run:
-    summary: Runs the application
-    cmds:
-      - task: "{{OS}}:run"
-
+  # ==================== 开发相关 ====================
   dev:
-    summary: Runs the application in development mode
+    summary: 🚀 启动开发模式 (热重载)
+    desc: |
+      启动 Wails3 开发服务器,支持前端热重载和后端代码重新编译
+      使用 WAILS_VITE_PORT 环境变量可自定义端口 (默认: 9245)
     cmds:
       - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
 
+  dev:frontend:
+    summary: 🎨 仅启动前端开发服务器
+    desc: 单独运行 Vite 开发服务器,不启动 Wails 后端
+    cmds:
+      - task: common:dev:frontend
+
+  dev:clean:
+    summary: 🧹 清理开发缓存并重新启动
+    cmds:
+      - |
+        echo "清理构建缓存..."
+        rm -rf frontend/dist
+        rm -rf frontend/bindings
+        rm -rf bin
+        echo "完成! 正在启动开发模式..."
+      - task: dev
+
+  # ==================== 构建相关 ====================
+  build:
+    summary: 🏗️ 构建应用 (当前平台)
+    desc: 构建当前平台的可执行文件
+    cmds:
+      - task: "{{OS}}:build"
+
+  build:dev:
+    summary: 🔨 构建开发版本 (包含调试信息)
+    desc: 构建包含调试信息的开发版本,未压缩前端代码
+    cmds:
+      - wails3 build -debug -clean
+
+  build:prod:
+    summary: 📦 构建生产版本 (优化)
+    desc: 构建优化的生产版本,压缩前端代码
+    cmds:
+      - task: build
+
+  build:all:
+    summary: 🌐 跨平台构建 (需要 Docker)
+    desc: 使用 Docker 构建所有目标平台的版本
+    cmds:
+      - task: darwin:build
+      - task: windows:build
+      - task: linux:build
+
+  # ==================== 前端相关 ====================
+  frontend:install:
+    summary: 📦 安装前端依赖
+    cmds:
+      - task: common:install:frontend:deps
+
+  frontend:build:
+    summary: 🔧 构建前端资源
+    cmds:
+      - task: common:build:frontend
+
+  frontend:clean:
+    summary: 🗑️ 清理前端构建产物
+    dir: frontend
+    cmds:
+      - rm -rf dist
+      - rm -rf node_modules/.vite
+
+  # ==================== Go 后端相关 ====================
+  go:tidy:
+    summary: 🧹 整理 Go 依赖
+    cmds:
+      - task: common:go:mod:tidy
+
+  go:test:
+    summary: 🧪 运行 Go 测试
+    cmds:
+      - go test -v ./...
+
+  go:test:coverage:
+    summary: 📊 生成测试覆盖率报告
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - |
+        echo "覆盖率报告已生成: coverage.html"
+
+  # ==================== 绑定生成 ====================
+  bindings:
+    summary: 🔗 生成前端绑定
+    desc: 重新生成 Go 到 JavaScript 的绑定代码
+    cmds:
+      - task: common:generate:bindings
+
+  bindings:clean:
+    summary: 🧹 清理并重新生成绑定
+    cmds:
+      - rm -rf frontend/bindings
+      - task: bindings
+
+  # ==================== 代码质量 ====================
+  lint:
+    summary: 🔍 代码检查
+    cmds:
+      - |
+        echo "检查 Go 代码..."
+        go vet ./...
+        echo "检查前端代码..."
+        cd frontend && npm run lint || echo "前端 lint 未配置"
+
+  format:
+    summary: 🎨 格式化代码
+    cmds:
+      - |
+        echo "格式化 Go 代码..."
+        go fmt ./...
+        echo "格式化前端代码..."
+        cd frontend && npm run format || echo "前端 format 未配置"
+
+  # ==================== 清理相关 ====================
+  clean:
+    summary: 🗑️ 清理所有构建产物
+    cmds:
+      - rm -rf bin
+      - rm -rf frontend/dist
+      - rm -rf frontend/bindings
+      - rm -rf frontend/node_modules
+      - rm -f coverage.out coverage.html
+      - |
+        echo "清理完成!"
+
+  clean:all:
+    summary: 💥 深度清理 (包括缓存)
+    cmds:
+      - task: clean
+      - rm -rf frontend/.vite
+      - go clean -cache -testcache
+      - |
+        echo "深度清理完成!"
+
+  # ==================== 运行相关 ====================
+  run:
+    summary: ▶️ 运行已构建的应用
+    desc: 运行已构建的可执行文件
+    cmds:
+      - task: "{{OS}}:run"
+
+  # ==================== 打包相关 ====================
+  package:
+    summary: 📦 打包应用 (当前平台)
+    desc: 创建当前平台的安装包
+    cmds:
+      - task: "{{OS}}:package"
+
+  package:all:
+    summary: 🌍 跨平台打包
+    desc: 为所有支持的平台创建安装包
+    cmds:
+      - task: darwin:package
+      - task: windows:package
+      - task: linux:package
+
+  # ==================== Docker 相关 ====================
   setup:docker:
-    summary: Builds Docker image for cross-compilation (~800MB download)
+    summary: 🐳 设置 Docker 跨平台编译环境
+    desc: |
+      构建 Docker 镜像用于跨平台编译
+      首次运行需要下载约 800MB 镜像
     cmds:
       - task: common:setup:docker
+
+  # ==================== 工具相关 ====================
+  update:assets:
+    summary: 🔄 更新构建资源
+    desc: 更新应用图标、元数据等资源
+    cmds:
+      - task: common:update:build-assets
+
+  generate:icons:
+    summary: 🎨 生成应用图标
+    desc: 从源图标生成各平台所需格式
+    cmds:
+      - task: common:generate:icons
+
+  # ==================== 信息相关 ====================
+  info:
+    summary: ℹ️ 显示项目信息
+    cmds:
+      - |
+        echo "=========================================="
+        echo "📱 应用名称: {{.APP_NAME}}"
+        echo "🔧 Go 版本: $(go version)"
+        echo "📦 Node 版本: $(node --version)"
+        echo "🎨 NPM 版本: $(npm --version)"
+        echo "💻 操作系统: {{OS}}"
+        echo "🔌 Vite 端口: {{.VITE_PORT}}"
+        echo "=========================================="
+
+  # ==================== 快速命令 ====================
+  quick:
+    summary: ⚡ 快速启动 (安装依赖 + 开发模式)
+    desc: |
+      一键安装所有依赖并启动开发模式
+      适合首次克隆项目后使用
+    cmds:
+      - |
+        echo "🚀 快速启动流程..."
+      - task: frontend:install
+      - task: go:tidy
+      - task: dev
+
