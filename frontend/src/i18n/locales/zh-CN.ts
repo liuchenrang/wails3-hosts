@@ -30,12 +30,18 @@ export const zhCN = {
       groupActions: '分组操作',
       deleteConfirm: '确定要删除分组"{{name}}"吗？',
       moreEntries: '还有 {{count}} 个条目...',
+      groupEnabled: '已启用',
+      groupDisabled: '已禁用',
+      toggleGroupError: '切换分组状态失败',
     },
     // 主面板
     mainPanel: {
       selectGroup: '请选择或创建一个分组',
       entries: 'Hosts 条目',
       addEntry: '添加条目',
+      updateEntry: '更新条目',
+      deleteEntry: '删除条目',
+      batchUpdate: '批量更新',
       preview: '预览生成的 hosts 文件',
       apply: '应用配置',
       applyShortcut: '快捷键: ⌘S / Ctrl+S',

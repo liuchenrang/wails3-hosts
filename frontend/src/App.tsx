@@ -5,6 +5,8 @@ import { HostsGroup, HostsVersion } from './types/hosts'
 import { hostsApi } from './api/hosts'
 import { useTheme } from './hooks/useTheme'
 import { useHotkey } from './hooks/useHotkeys'
+import { useToast } from './hooks/useToast'
+import { ToastContainer } from './components/ui/Toast'
 import { Sidebar } from './components/layout/Sidebar'
 import { MainPanel } from './components/layout/MainPanel'
 import { VersionHistory } from './components/hosts/VersionHistory'
@@ -46,6 +48,7 @@ if (typeof window !== 'undefined') {
 function App() {
   const { t } = useTranslation()
   const { theme, toggleTheme } = useTheme()
+  const toast = useToast()
   const [groups, setGroups] = useState<HostsGroup[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(() => {
     // 从 localStorage 读取上次选择的分组
@@ -148,9 +151,10 @@ function App() {
     try {
       await hostsApi.createGroup(name, description)
       await loadGroups()
+      toast.success(t('sidebar.createGroup') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to create group:', error)
-      alert('创建分组失败')
+      toast.error(t('sidebar.createGroup') + ' ' + t('common.error'))
     }
   }
 
@@ -158,9 +162,10 @@ function App() {
     try {
       await hostsApi.updateGroup(id, name, description)
       await loadGroups()
+      toast.success(t('sidebar.editGroup') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to update group:', error)
-      alert('更新分组失败')
+      toast.error(t('sidebar.editGroup') + ' ' + t('common.error'))
     }
   }
 
@@ -171,9 +176,10 @@ function App() {
         setSelectedGroupId(null)
       }
       await loadGroups()
+      toast.success(t('sidebar.deleteGroup') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to delete group:', error)
-      alert('删除分组失败')
+      toast.error(t('sidebar.deleteGroup') + ' ' + t('common.error'))
     }
   }
 
@@ -181,9 +187,15 @@ function App() {
     try {
       await hostsApi.toggleGroup(id, enabled)
       await loadGroups()
+      const groupName = groups.find(g => g.id === id)?.name || ''
+      toast.success(
+        enabled
+          ? `"${groupName}" ${t('sidebar.groupEnabled')}`
+          : `"${groupName}" ${t('sidebar.groupDisabled')}`
+      )
     } catch (error) {
       console.error('Failed to toggle group:', error)
-      alert('切换分组状态失败')
+      toast.error(t('sidebar.toggleGroupError'))
     }
   }
 
@@ -192,9 +204,10 @@ function App() {
     try {
       await hostsApi.addEntry(selectedGroupId, ip, hostname, comment)
       await loadGroups()
+      toast.success(t('mainPanel.addEntry') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to add entry:', error)
-      alert('添加条目失败')
+      toast.error(t('mainPanel.addEntry') + ' ' + t('common.error'))
     }
   }
 
@@ -203,9 +216,10 @@ function App() {
     try {
       await hostsApi.updateEntry(selectedGroupId, entryId, ip, hostname, comment)
       await loadGroups()
+      toast.success(t('mainPanel.updateEntry') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to update entry:', error)
-      alert('更新条目失败')
+      toast.error(t('mainPanel.updateEntry') + ' ' + t('common.error'))
     }
   }
 
@@ -214,9 +228,10 @@ function App() {
     try {
       await hostsApi.deleteEntry(selectedGroupId, entryId)
       await loadGroups()
+      toast.success(t('mainPanel.deleteEntry') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to delete entry:', error)
-      alert('删除条目失败')
+      toast.error(t('mainPanel.deleteEntry') + ' ' + t('common.error'))
     }
   }
 
@@ -227,7 +242,7 @@ function App() {
       setShowPreview(true)
     } catch (error) {
       console.error('Failed to generate preview:', error)
-      alert('生成预览失败')
+      toast.error(t('mainPanel.preview') + ' ' + t('common.error'))
     }
   }
 
@@ -249,10 +264,10 @@ function App() {
       setShowSudoPrompt(false)
       setSudoPassword('')
       await loadVersions()
-      alert(t('common.success'))
+      toast.success(t('mainPanel.apply') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to apply hosts:', error)
-      alert(t('common.error'))
+      toast.error(t('mainPanel.apply') + ' ' + t('common.error'))
       // 应用失败,清除密码缓存状态,让用户重新输入
       setIsPasswordCached(false)
       throw error
@@ -265,7 +280,7 @@ function App() {
       const validationResult = await hostsApi.validateSudoPassword(sudoPassword)
 
       if (!validationResult.valid) {
-        alert('sudo 密码验证失败: ' + validationResult.error)
+        toast.error('sudo 密码验证失败: ' + validationResult.error)
         return
       }
 
@@ -292,12 +307,12 @@ function App() {
   const handleRollback = async (versionId: string, password: string) => {
     try {
       await hostsApi.rollbackToVersion(versionId, password)
-      alert('回滚成功')
+      toast.success(t('versions.rollback') + ' ' + t('common.success'))
       await loadVersions()
       await loadGroups()
     } catch (error) {
       console.error('Failed to rollback:', error)
-      alert('回滚失败')
+      toast.error(t('versions.rollback') + ' ' + t('common.error'))
     }
   }
 
@@ -309,10 +324,10 @@ function App() {
       setShowSudoPrompt(false)
       setSudoPassword('')
       await loadVersions()
-      alert(t('common.success'))
+      toast.success(t('mainPanel.apply') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to apply hosts:', error)
-      alert(t('common.error'))
+      toast.error(t('mainPanel.apply') + ' ' + t('common.error'))
       // 应用失败,清除密码缓存状态
       setIsPasswordCached(false)
     }
@@ -323,9 +338,10 @@ function App() {
     try {
       await hostsApi.batchUpdateEntries(selectedGroupId, entries)
       await loadGroups()
+      toast.success(t('mainPanel.batchUpdate') + ' ' + t('common.success'))
     } catch (error) {
       console.error('Failed to batch update entries:', error)
-      alert('批量更新失败')
+      toast.error(t('mainPanel.batchUpdate') + ' ' + t('common.error'))
       throw error
     }
   }
@@ -349,6 +365,7 @@ function App() {
   return (
     <>
       <VibeKanbanWebCompanion />
+      <ToastContainer toasts={toast.toasts} onClose={toast.close} />
       <div className="flex h-screen flex-col bg-background text-foreground">
         {/* 顶部栏 */}
         <div className="flex items-center justify-between border-b px-6 py-3">
