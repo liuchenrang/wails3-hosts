@@ -50,12 +50,16 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
         }
         footer={<Button onClick={onClose}>{t('common.cancel')}</Button>}
       >
-        <div className="max-h-96 overflow-auto">
-          {versions.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">
-              {t('sidebar.noGroups')}
-            </div>
-          ) : (
+        <div className="space-y-2">
+          <div className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+            {t('versions.maxVersions')}
+          </div>
+          <div className="max-h-96 overflow-auto">
+            {versions.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                {t('versions.noVersions')}
+              </div>
+            ) : (
             <div className="space-y-3">
               {versions.map((version, index) => (
                 <div
@@ -108,6 +112,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
               ))}
             </div>
           )}
+          </div>
         </div>
       </Modal>
 

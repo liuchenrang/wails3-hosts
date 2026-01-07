@@ -11,7 +11,7 @@ import (
 
 const (
 	// MaxVersions 最大版本数量
-	MaxVersions = 50
+	MaxVersions = 10
 	// VersionExpirationDays 版本过期天数
 	VersionExpirationDays = 30
 )

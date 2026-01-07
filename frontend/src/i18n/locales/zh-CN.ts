@@ -74,6 +74,8 @@ export const zhCN = {
       source_manual: '手动应用',
       source_auto: '自动创建',
       source_rollback: '回滚操作',
+      maxVersions: '最多保留 10 个版本',
+      noVersions: '暂无版本历史',
     },
     // Sudo 密码
     sudo: {
