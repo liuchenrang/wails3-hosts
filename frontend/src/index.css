@@ -62,4 +62,22 @@
   #root {
     @apply h-full w-full;
   }
+
+  /* 文本选中样式 */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  /* 明亮主题下的文本选中样式 */
+  :root ::selection {
+    background-color: hsl(221.2 83.2% 53.3% / 0.3);
+    color: hsl(222.2 84% 4.9%);
+  }
+
+  /* 暗黑主题下的文本选中样式 */
+  .dark ::selection {
+    background-color: hsl(217.2 91.2% 59.8% / 0.3);
+    color: hsl(210 40% 98%);
+  }
 }
