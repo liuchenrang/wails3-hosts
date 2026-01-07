@@ -31,11 +31,11 @@ export function AddEntry(groupID, ip, hostname, comment) {
 
 /**
  * ApplyHosts 应用 hosts 配置到系统
- * @param {string} sudoPassword
+ * 注意：此方法不再接收密码参数，密码必须提前通过 ValidateSudoPassword 验证
  * @returns {$CancellablePromise<void>}
  */
-export function ApplyHosts(sudoPassword) {
-    return $Call.ByID(3146797025, sudoPassword);
+export function ApplyHosts() {
+    return $Call.ByID(3146797025);
 }
 
 /**

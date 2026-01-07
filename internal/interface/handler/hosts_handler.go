@@ -131,10 +131,9 @@ func (h *HostsHandler) DetectConflicts() (map[string][]string, error) {
 }
 
 // ApplyHosts 应用 hosts 配置到系统
-func (h *HostsHandler) ApplyHosts(sudoPassword string) error {
-	req := dto.ApplyHostsRequest{
-		SudoPassword: sudoPassword,
-	}
+// 注意：此方法不再接收密码参数，密码必须提前通过 ValidateSudoPassword 验证
+func (h *HostsHandler) ApplyHosts() error {
+	req := dto.ApplyHostsRequest{}
 	return h.appService.ApplyHosts(context.Background(), req)
 }
 
@@ -167,7 +166,5 @@ func (h *HostsHandler) ValidateSudoPassword(password string) (bool, string) {
 
 // IsSudoPasswordCached 检查 sudo 密码是否已缓存
 func (h *HostsHandler) IsSudoPasswordCached() bool {
-	// 这里需要从 SudoManager 获取，暂时返回 false
-	// TODO: 添加到应用服务
-	return false
+	return h.appService.IsSudoPasswordCached(context.Background())
 }

@@ -77,6 +77,8 @@ export const jaJP = {
       passwordPlaceholder: 'sudo パスワードを入力',
       validateError: 'パスワード検証に失敗しました',
       cached: 'パスワードキャッシュ済み ({{seconds}}秒)',
+      required: 'hosts ファイルを書き込むには sudo パスワードが必要です',
+      invalid: 'sudo パスワードの検証に失敗しました。パスワードが正しいか確認してください',
     },
     // テーマ
     theme: {

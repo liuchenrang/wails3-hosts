@@ -36,11 +36,13 @@ func (s *HostsDomainService) GenerateHostsContent(groups []*entity.HostsGroup) s
 			continue
 		}
 
-		// 添加分组注释
-		buffer.WriteString(fmt.Sprintf("# Group: %s\n", group.Name))
+		// 添加分组开始标记（增强版组名备注）
+		buffer.WriteString(fmt.Sprintf("# ===== 开始分组: %s =====\n", group.Name))
 		if group.Description != "" {
-			buffer.WriteString(fmt.Sprintf("# %s\n", group.Description))
+			buffer.WriteString(fmt.Sprintf("# 描述: %s\n", group.Description))
 		}
+		buffer.WriteString(fmt.Sprintf("# 分组ID: %s\n", group.ID))
+		buffer.WriteString("# --------------------------------------\n")
 
 		// 添加条目
 		for _, entry := range entries {
@@ -49,7 +51,9 @@ func (s *HostsDomainService) GenerateHostsContent(groups []*entity.HostsGroup) s
 				buffer.WriteString(line + "\n")
 			}
 		}
-		buffer.WriteString("\n")
+
+		// 添加分组结束标记
+		buffer.WriteString(fmt.Sprintf("# ===== 结束分组: %s =====\n\n", group.Name))
 	}
 
 	return buffer.String()

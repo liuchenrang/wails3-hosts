@@ -77,6 +77,8 @@ export const enUS = {
       passwordPlaceholder: 'Enter sudo password',
       validateError: 'Password validation failed',
       cached: 'Password cached ({{seconds}}s)',
+      required: 'Sudo password required to write hosts file',
+      invalid: 'Sudo password validation failed, please check if password is correct',
     },
     // Theme
     theme: {

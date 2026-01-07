@@ -212,7 +212,15 @@ function App() {
 
   const handleConfirmApply = async () => {
     try {
-      // 检测冲突
+      // 1. 先验证 sudo 密码
+      const validationResult = await hostsApi.validateSudoPassword(sudoPassword)
+
+      if (!validationResult.valid) {
+        alert('sudo 密码验证失败: ' + validationResult.error)
+        return
+      }
+
+      // 2. 检测冲突
       const detectedConflicts = await hostsApi.detectConflicts()
       if (Object.keys(detectedConflicts).length > 0) {
         setConflicts(detectedConflicts)
@@ -220,7 +228,10 @@ function App() {
         return
       }
 
-      await hostsApi.applyHosts(sudoPassword)
+      // 3. 应用配置（不需要传递密码）
+      await hostsApi.applyHosts()
+
+      // 4. 清理状态
       setShowSudoPrompt(false)
       setSudoPassword('')
       await loadVersions()

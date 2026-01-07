@@ -99,8 +99,10 @@ export const hostsApi = {
     return await HostsHandler.DetectConflicts()
   },
 
-  async applyHosts(sudoPassword: string): Promise<void> {
-    await HostsHandler.ApplyHosts(sudoPassword)
+  async applyHosts(): Promise<void> {
+    // 注意：不再传递密码参数
+    // 密码必须先通过 validateSudoPassword() 验证
+    await HostsHandler.ApplyHosts()
   },
 
   // ========== 版本历史 ==========

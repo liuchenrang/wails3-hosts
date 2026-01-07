@@ -1,10 +1,13 @@
 package system
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -62,15 +65,23 @@ func (o *HostsFileOperator) ReadCurrent() (string, error) {
 }
 
 // Write 写入内容到 hosts 文件（需要 sudo 权限）
-func (o *HostsFileOperator) Write(content, sudoPassword string) error {
-	// 使用 sudo tee 命令写入文件
-	// 这比直接使用 sudo 更安全，因为不需要将密码通过命令行参数传递
-	cmd := NewSudoCommand([]string{"tee", o.hostsFilePath})
-	cmd.SetStdin([]byte(content + "\n"))
-	cmd.SetPassword(sudoPassword)
+// 注意：此方法不接收密码参数，密码必须提前通过 SudoManager 缓存
+func (o *HostsFileOperator) Write(content string) error {
+	// 此方法不再需要密码参数
+	// 密码应该已经通过 ValidateSudoPassword 验证并缓存
+	// 直接调用 sudo，使用缓存的凭证
+	script := fmt.Sprintf("cat > %s", o.hostsFilePath)
+
+	// 创建 sudo 命令，不设置密码（使用系统缓存的凭证）
+	cmd := exec.Command("sudo", "sh", "-c", script)
+	cmd.Stdin = strings.NewReader(content)
+
+	// 捕获输出
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("写入 hosts 文件失败: %w", err)
+		return fmt.Errorf("写入 hosts 文件失败: %w, stderr: %s", err, stderr.String())
 	}
 
 	return nil
@@ -159,8 +170,8 @@ func (o *HostsFileOperator) RestoreFromBackup(backupPath string) error {
 		return fmt.Errorf("读取备份文件失败: %w", err)
 	}
 
-	// 注意: 这需要 sudo 权限，调用者需要提供密码
-	return o.Write(string(content), "")
+	// 注意: 这需要 sudo 权限，使用系统缓存的凭证
+	return o.Write(string(content))
 }
 
 // GetBackupList 获取所有备份文件列表

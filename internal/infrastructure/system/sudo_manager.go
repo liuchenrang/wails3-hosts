@@ -23,21 +23,22 @@ func NewSudoManager() *SudoManager {
 	}
 }
 
-// ValidatePassword 验证 sudo 密码是否有效
-// 通过执行一个简单的 sudo 命令来验证
+// ValidatePassword 验证 sudo 密码是否有效并提升权限
+// 通过执行 sudo 命令来验证，验证成功后系统会缓存 sudo 凭证
 func (m *SudoManager) ValidatePassword(password string) bool {
-	// 使用 sudo -n -v 验证密码（-n 表示不使用缓存密码）
-	cmd := NewSudoCommand([]string{"-k", "-v"}) // -k 先清除缓存
+	// 使用 sudo -v 验证密码
+	// sudo 会将凭证缓存在系统中，后续的 sudo 命令不需要密码
+	cmd := NewSudoCommand([]string{"-v"})
 	cmd.SetPassword(password)
 
 	if err := cmd.Run(); err != nil {
 		return false
 	}
 
-	// 再次验证（这次会使用密码）
-	cmd2 := NewSudoCommand([]string{"-v"})
-	cmd2.SetPassword(password)
-	return cmd2.Run() == nil
+	// 验证成功，缓存密码到内存（用于状态检查）
+	m.CachePassword(password)
+
+	return true
 }
 
 // CachePassword 缓存 sudo 密码

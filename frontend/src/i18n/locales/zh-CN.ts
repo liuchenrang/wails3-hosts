@@ -77,6 +77,8 @@ export const zhCN = {
       passwordPlaceholder: '输入 sudo 密码',
       validateError: '密码验证失败',
       cached: '密码已缓存 ({{seconds}}秒)',
+      required: '需要 sudo 密码才能写入 hosts 文件',
+      invalid: 'sudo 密码验证失败，请检查密码是否正确',
     },
     // 主题
     theme: {

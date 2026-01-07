@@ -1,0 +1,52 @@
+{
+  "groups": [
+    {
+      "id": "cecb6553-8010-4ecb-ad34-bc2b6029a5e4",
+      "name": "测试分组1",
+      "description": "这是第一个测试分组",
+      "is_enabled": true,
+      "order": 0,
+      "entries": [
+        {
+          "id": "f42a369d-10e6-4efd-8a80-0b8dc1878c86",
+          "ip": "127.0.0.1",
+          "hostname": "test1.local",
+          "comment": "测试条目1",
+          "enabled": true
+        },
+        {
+          "id": "8c853f4e-35d5-410d-8532-70a0e93a7bc9",
+          "ip": "127.0.0.2",
+          "hostname": "test2.local",
+          "comment": "测试条目2",
+          "enabled": true
+        }
+      ],
+      "created_at": "2026-01-07T21:59:19.450558+08:00",
+      "updated_at": "2026-01-07T21:59:19.454874+08:00"
+    },
+    {
+      "id": "e30e356c-8109-49c2-b426-f9815a7c29a2",
+      "name": "测试分组2",
+      "description": "这是第二个测试分组",
+      "is_enabled": true,
+      "order": 0,
+      "entries": [
+        {
+          "id": "5f52f3e2-ec1b-42eb-a449-9dd554a499aa",
+          "ip": "192.168.1.100",
+          "hostname": "test3.local",
+          "comment": "测试条目3",
+          "enabled": true
+        }
+      ],
+      "created_at": "2026-01-07T21:59:19.451413+08:00",
+      "updated_at": "2026-01-07T21:59:19.455591+08:00"
+    }
+  ],
+  "settings": {
+    "theme": "dark",
+    "language": "zh-CN",
+    "auto_apply": false
+  }
+}

@@ -257,10 +257,11 @@ func (s *HostsApplicationService) DetectConflicts(ctx context.Context) (map[stri
 
 // ApplyHosts 应用 hosts 配置到系统
 // 用例: 用户点击"应用"按钮或按 Cmd+S
+// 前置条件: 密码必须先通过 ValidateSudoPassword 验证并缓存
 func (s *HostsApplicationService) ApplyHosts(ctx context.Context, req dto.ApplyHostsRequest) error {
-	// 1. 检查 sudo 密码
-	if !s.sudoManager.IsPasswordCached() && req.SudoPassword == "" {
-		return fmt.Errorf("需要 sudo 密码")
+	// 1. 检查是否有缓存的 sudo 密码
+	if !s.sudoManager.IsPasswordCached() {
+		return fmt.Errorf("需要先验证 sudo 密码，请调用 ValidateSudoPassword")
 	}
 
 	// 2. 生成 hosts 内容
@@ -285,19 +286,9 @@ func (s *HostsApplicationService) ApplyHosts(ctx context.Context, req dto.ApplyH
 		return fmt.Errorf("保存版本失败: %w", err)
 	}
 
-	// 5. 写入 hosts 文件
-	password := req.SudoPassword
-	if password == "" && s.sudoManager.IsPasswordCached() {
-		password = s.sudoManager.GetCachedPassword()
-	}
-
-	if err := s.hostsFileOp.Write(content, password); err != nil {
+	// 5. 写入 hosts 文件（使用缓存的系统凭证）
+	if err := s.hostsFileOp.Write(content); err != nil {
 		return fmt.Errorf("写入 hosts 文件失败: %w", err)
-	}
-
-	// 6. 缓存密码
-	if req.SudoPassword != "" {
-		s.sudoManager.CachePassword(req.SudoPassword)
 	}
 
 	return nil
@@ -339,8 +330,8 @@ func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto
 		return fmt.Errorf("备份 hosts 文件失败: %w", err)
 	}
 
-	// 3. 写入目标版本内容
-	if err := s.hostsFileOp.Write(targetVersion.Content, req.SudoPassword); err != nil {
+	// 3. 写入目标版本内容（使用缓存的系统凭证）
+	if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
 		return fmt.Errorf("写入 hosts 文件失败: %w", err)
 	}
 
@@ -371,6 +362,12 @@ func (s *HostsApplicationService) ValidateSudoPassword(ctx context.Context, req 
 		Valid: false,
 		Error: "sudo 密码无效",
 	}
+}
+
+// IsSudoPasswordCached 检查 sudo 密码是否已缓存
+// 用例: 前端判断是否需要显示密码输入框
+func (s *HostsApplicationService) IsSudoPasswordCached(ctx context.Context) bool {
+	return s.sudoManager.IsPasswordCached()
 }
 
 // toGroupDTO 将领域实体转换为 DTO
