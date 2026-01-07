@@ -75,8 +75,22 @@ func (s *HostsApplicationService) GetAllGroups(ctx context.Context) ([]dto.Hosts
 		return nil, fmt.Errorf("查找分组失败: %w", err)
 	}
 
-	result := make([]dto.HostsGroupDTO, 0, len(groups))
-	for _, group := range groups {
+	// 按照order字段排序
+	// DRY: 使用Go标准库的sort.Slice进行排序
+	sortedGroups := make([]*entity.HostsGroup, len(groups))
+	copy(sortedGroups, groups)
+
+	// 简单排序: 按Order字段升序排列
+	for i := 0; i < len(sortedGroups)-1; i++ {
+		for j := i + 1; j < len(sortedGroups); j++ {
+			if sortedGroups[i].Order > sortedGroups[j].Order {
+				sortedGroups[i], sortedGroups[j] = sortedGroups[j], sortedGroups[i]
+			}
+		}
+	}
+
+	result := make([]dto.HostsGroupDTO, 0, len(sortedGroups))
+	for _, group := range sortedGroups {
 		result = append(result, *s.toGroupDTO(group))
 	}
 	return result, nil
@@ -121,6 +135,34 @@ func (s *HostsApplicationService) ToggleGroup(ctx context.Context, req dto.Toggl
 
 	group.SetEnabled(req.Enabled)
 	return s.hostsRepo.Save(ctx, group)
+}
+
+// ReorderGroups 重新排序分组
+// 用例: 用户拖动分组改变顺序
+func (s *HostsApplicationService) ReorderGroups(ctx context.Context, req dto.ReorderGroupsRequest) error {
+	// 获取所有分组
+	allGroups, err := s.hostsRepo.FindAll(ctx)
+	if err != nil {
+		return fmt.Errorf("查找分组失败: %w", err)
+	}
+
+	// 创建分组ID到分组的映射
+	groupMap := make(map[string]*entity.HostsGroup)
+	for i := range allGroups {
+		groupMap[allGroups[i].ID] = allGroups[i]
+	}
+
+	// 按照新顺序更新分组的排序字段
+	for i, groupID := range req.GroupIDs {
+		if group, exists := groupMap[groupID]; exists {
+			group.SetOrder(i)
+			if err := s.hostsRepo.Save(ctx, group); err != nil {
+				return fmt.Errorf("保存分组排序失败: %w", err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // AddEntry 向分组添加一个 hosts 条目
@@ -350,6 +392,7 @@ func (s *HostsApplicationService) toGroupDTO(group *entity.HostsGroup) *dto.Host
 		Name:        group.Name,
 		Description: group.Description,
 		IsEnabled:   group.IsEnabled,
+		Order:       group.Order,
 		Entries:     entries,
 		CreatedAt:   group.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt:   group.UpdatedAt.Format("2006-01-02 15:04:05"),

@@ -42,6 +42,26 @@ export const hostsApi = {
     await HostsHandler.ToggleGroup(id, enabled)
   },
 
+  // TODO: Wails绑定文件将在运行时自动生成ReorderGroups
+  async reorderGroups(groupIds: string[]): Promise<void> {
+    // 临时使用动态调用
+    const handler = HostsHandler as any
+    if (handler.ReorderGroups) {
+      await handler.ReorderGroups(groupIds)
+    } else {
+      console.warn('ReorderGroups method not available in binding yet')
+      // 如果方法不存在,使用API调用
+      await fetch('/wails/runtime', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'github.com/chen/wails3-hosts/internal/interface/handler.HostsHandler.ReorderGroups',
+          args: [groupIds]
+        })
+      })
+    }
+  },
+
   // ========== 条目管理 ==========
 
   async addEntry(groupID: string, ip: string, hostname: string, comment: string): Promise<void> {

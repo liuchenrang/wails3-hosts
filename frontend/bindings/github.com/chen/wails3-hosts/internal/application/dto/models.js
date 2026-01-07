@@ -156,6 +156,13 @@ export class HostsGroupDTO {
              */
             this["is_enabled"] = false;
         }
+        if (!("order" in $$source)) {
+            /**
+             * @member
+             * @type {number}
+             */
+            this["order"] = 0;
+        }
         if (!("entries" in $$source)) {
             /**
              * @member
@@ -187,10 +194,10 @@ export class HostsGroupDTO {
      * @returns {HostsGroupDTO}
      */
     static createFrom($$source = {}) {
-        const $$createField4_0 = $$createType1;
+        const $$createField5_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("entries" in $$parsedSource) {
-            $$parsedSource["entries"] = $$createField4_0($$parsedSource["entries"]);
+            $$parsedSource["entries"] = $$createField5_0($$parsedSource["entries"]);
         }
         return new HostsGroupDTO(/** @type {Partial<HostsGroupDTO>} */($$parsedSource));
     }

@@ -81,17 +81,21 @@ function App() {
     loadVersions()
 
     // 监听来自 Wails 后端的事件
-    if (typeof window !== 'undefined' && (window as any).EventsOn) {
-      // 监听"关于我们"对话框事件
-      ;(window as any).EventsOn('show-about-dialog', (data: { version?: string; email?: string }) => {
-        setAboutInfo(data)
-        setShowAbout(true)
-      })
+    try {
+      if (typeof window !== 'undefined' && (window as any).EventsOn) {
+        // 监听"关于我们"对话框事件
+        ;(window as any).EventsOn('show-about-dialog', (data: { version?: string; email?: string }) => {
+          setAboutInfo(data)
+          setShowAbout(true)
+        })
 
-      // 监听版本历史事件
-      ;(window as any).EventsOn('show-version-history', () => {
-        setShowVersions(true)
-      })
+        // 监听版本历史事件
+        ;(window as any).EventsOn('show-version-history', () => {
+          setShowVersions(true)
+        })
+      }
+    } catch (error) {
+      console.warn('Wails事件监听注册失败:', error)
     }
   }, [])
 
@@ -126,6 +130,16 @@ function App() {
     } catch (error) {
       console.error('Failed to create group:', error)
       alert('创建分组失败')
+    }
+  }
+
+  const handleUpdateGroup = async (id: string, name: string, description: string) => {
+    try {
+      await hostsApi.updateGroup(id, name, description)
+      await loadGroups()
+    } catch (error) {
+      console.error('Failed to update group:', error)
+      alert('更新分组失败')
     }
   }
 
@@ -312,6 +326,7 @@ function App() {
               selectedGroupId={selectedGroupId}
               onSelectGroup={handleSelectGroup}
               onCreateGroup={handleCreateGroup}
+              onUpdateGroup={handleUpdateGroup}
               onDeleteGroup={handleDeleteGroup}
               onToggleGroup={handleToggleGroup}
               onDoubleClickGroup={handleDoubleClickGroup}

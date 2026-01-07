@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Power, Trash2, Edit } from 'lucide-react'
+import { Plus, Power, Trash2, Edit, AlertTriangle } from 'lucide-react'
 import { HostsGroup } from '../../types/hosts'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
@@ -13,6 +13,7 @@ interface SidebarProps {
   selectedGroupId: string | null
   onSelectGroup: (group: HostsGroup) => void
   onCreateGroup: (name: string, description: string) => void
+  onUpdateGroup: (id: string, name: string, description: string) => void
   onDeleteGroup: (id: string) => void
   onToggleGroup: (id: string, enabled: boolean) => void
   onDoubleClickGroup: (group: HostsGroup) => void
@@ -23,12 +24,17 @@ export function Sidebar({
   selectedGroupId,
   onSelectGroup,
   onCreateGroup,
+  onUpdateGroup,
   onDeleteGroup,
   onToggleGroup,
   onDoubleClickGroup,
 }: SidebarProps) {
   const { t } = useTranslation()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [editingGroup, setEditingGroup] = useState<HostsGroup | null>(null)
+  const [deletingGroup, setDeletingGroup] = useState<HostsGroup | null>(null)
   const [newGroupName, setNewGroupName] = useState('')
   const [newGroupDesc, setNewGroupDesc] = useState('')
 
@@ -39,6 +45,48 @@ export function Sidebar({
       setNewGroupDesc('')
       setIsCreateModalOpen(false)
     }
+  }
+
+  const handleEditGroup = (group: HostsGroup) => {
+    setEditingGroup(group)
+    setNewGroupName(group.name)
+    setNewGroupDesc(group.description)
+    setIsEditModalOpen(true)
+  }
+
+  const handleUpdateGroup = () => {
+    if (newGroupName.trim() && editingGroup) {
+      onUpdateGroup(editingGroup.id, newGroupName.trim(), newGroupDesc.trim())
+      setNewGroupName('')
+      setNewGroupDesc('')
+      setEditingGroup(null)
+      setIsEditModalOpen(false)
+    }
+  }
+
+  const handleCloseEditModal = () => {
+    setNewGroupName('')
+    setNewGroupDesc('')
+    setEditingGroup(null)
+    setIsEditModalOpen(false)
+  }
+
+  const handleDeleteClick = (group: HostsGroup) => {
+    setDeletingGroup(group)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (deletingGroup) {
+      onDeleteGroup(deletingGroup.id)
+      setDeletingGroup(null)
+      setIsDeleteModalOpen(false)
+    }
+  }
+
+  const handleCloseDeleteModal = () => {
+    setDeletingGroup(null)
+    setIsDeleteModalOpen(false)
   }
 
   const getEntryCount = (group: HostsGroup) => {
@@ -74,7 +122,7 @@ export function Sidebar({
           </div>
         ) : (
           <div className="px-3 py-2 space-y-2">
-            {groups.map(group => {
+            {groups.map((group) => {
               const isSelected = selectedGroupId === group.id
               const entryCount = getEntryCount(group)
 
@@ -87,16 +135,16 @@ export function Sidebar({
                       ? 'border-primary bg-accent shadow-sm'
                       : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50'
                   )}
-                  onClick={() => onSelectGroup(group)}
-                  onDoubleClick={() => onDoubleClickGroup(group)}
+                  // onClick={() => onSelectGroup(group)}
+                  // onDoubleClick={() => onDoubleClickGroup(group)}
                 >
                   {/* 分组头部 */}
                   <div className="flex items-center p-3">
                     {/* 状态图标 */}
                     <button
                       className="mr-3 flex-shrink-0"
-                      onClick={e => {
-                        e.stopPropagation()
+                      onClick={(e) => {
+                   
                         onToggleGroup(group.id, !group.is_enabled)
                       }}
                     >
@@ -128,22 +176,26 @@ export function Sidebar({
 
                     {/* 操作按钮组 */}
                     <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 ml-2">
+                      {/* 编辑按钮 */}
                       <button
                         className="rounded p-1.5 hover:bg-accent"
-                        onClick={e => {
+                        onClick={(e) => {
                           e.stopPropagation()
+                          handleEditGroup(group)
                         }}
+                        title="编辑分组"
                       >
                         <Edit className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
                       </button>
+
+                      {/* 删除按钮 */}
                       <button
                         className="rounded p-1.5 hover:bg-destructive/10"
-                        onClick={e => {
+                        onClick={(e) => {
                           e.stopPropagation()
-                          if (confirm(t('sidebar.deleteConfirm', { name: group.name }))) {
-                            onDeleteGroup(group.id)
-                          }
+                          handleDeleteClick(group)
                         }}
+                        title="删除分组"
                       >
                         <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                       </button>
@@ -191,6 +243,87 @@ export function Sidebar({
               placeholder="例如：本地开发域名映射"
               className="mt-1"
             />
+          </div>
+        </div>
+      </Modal>
+
+      {/* 编辑分组模态框 */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        title="编辑分组"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={handleCloseEditModal}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleUpdateGroup}>{t('common.confirm')}</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium">{t('form.groupName')}</label>
+            <Input
+              value={newGroupName}
+              onChange={e => setNewGroupName(e.target.value)}
+              placeholder="例如：开发环境"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">{t('form.groupDesc')}</label>
+            <Input
+              value={newGroupDesc}
+              onChange={e => setNewGroupDesc(e.target.value)}
+              placeholder="例如：本地开发域名映射"
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* 删除确认模态框 */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        title="确认删除分组"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={handleCloseDeleteModal}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+            >
+              确认删除
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">
+                确定要删除分组"{deletingGroup?.name}"吗?
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                此操作将永久删除该分组及其所有条目,此操作不可恢复。
+              </p>
+              {deletingGroup && deletingGroup.entries.length > 0 && (
+                <p className="mt-2 text-sm text-destructive">
+                  该分组包含 {deletingGroup.entries.length} 个条目
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </Modal>

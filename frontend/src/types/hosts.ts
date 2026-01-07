@@ -5,6 +5,7 @@ export interface HostsGroup {
   name: string
   description: string
   is_enabled: boolean
+  order: number
   entries: HostsEntry[]
   created_at: string
   updated_at: string

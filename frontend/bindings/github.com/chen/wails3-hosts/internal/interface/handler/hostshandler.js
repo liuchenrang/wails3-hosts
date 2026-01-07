@@ -138,6 +138,15 @@ export function IsSudoPasswordCached() {
 }
 
 /**
+ * ReorderGroups 重新排序分组
+ * @param {string[]} groupIDs
+ * @returns {$CancellablePromise<void>}
+ */
+export function ReorderGroups(groupIDs) {
+    return $Call.ByID(856750197, groupIDs);
+}
+
+/**
  * RollbackToVersion 回滚到指定版本
  * @param {string} versionID
  * @param {string} sudoPassword

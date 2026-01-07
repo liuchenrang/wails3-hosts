@@ -13,6 +13,7 @@ type HostsGroup struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
 	IsEnabled   bool        `json:"is_enabled"`
+	Order       int         `json:"order"`      // 分组的排序顺序
 	Entries     []HostsEntry `json:"entries"`
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
@@ -27,6 +28,7 @@ func NewHostsGroup(name, description string) *HostsGroup {
 		Name:        name,
 		Description: description,
 		IsEnabled:   false, // 默认不启用，遵循最小惊讶原则
+		Order:       0,     // 默认排序为0
 		Entries:     make([]HostsEntry, 0),
 		CreatedAt:   now,
 		UpdatedAt:   now,
@@ -107,6 +109,12 @@ func (g *HostsGroup) GetEnabledEntries() []HostsEntry {
 // SetEnabled 设置分组的启用状态
 func (g *HostsGroup) SetEnabled(enabled bool) {
 	g.IsEnabled = enabled
+	g.UpdatedAt = time.Now()
+}
+
+// SetOrder 设置分组的排序顺序
+func (g *HostsGroup) SetOrder(order int) {
+	g.Order = order
 	g.UpdatedAt = time.Now()
 }
 

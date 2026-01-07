@@ -67,6 +67,14 @@ func (h *HostsHandler) ToggleGroup(id string, enabled bool) error {
 	return h.appService.ToggleGroup(context.Background(), req)
 }
 
+// ReorderGroups 重新排序分组
+func (h *HostsHandler) ReorderGroups(groupIDs []string) error {
+	req := dto.ReorderGroupsRequest{
+		GroupIDs: groupIDs,
+	}
+	return h.appService.ReorderGroups(context.Background(), req)
+}
+
 // ========== 条目管理 ==========
 
 // AddEntry 添加 hosts 条目

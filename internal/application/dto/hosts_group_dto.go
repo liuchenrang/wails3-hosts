@@ -8,6 +8,7 @@ type HostsGroupDTO struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	IsEnabled   bool           `json:"is_enabled"`
+	Order       int            `json:"order"`
 	Entries     []HostsEntryDTO `json:"entries"`
 	CreatedAt   string         `json:"created_at"`
 	UpdatedAt   string         `json:"updated_at"`
@@ -39,6 +40,11 @@ type UpdateHostsGroupRequest struct {
 type ToggleGroupRequest struct {
 	ID      string `json:"id"`
 	Enabled bool   `json:"enabled"`
+}
+
+// ReorderGroupsRequest 重新排序分组请求
+type ReorderGroupsRequest struct {
+	GroupIDs []string `json:"group_ids"` // 按顺序排列的分组ID列表
 }
 
 // AddEntryRequest 添加条目请求
