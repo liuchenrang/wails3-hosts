@@ -65,12 +65,33 @@ function App() {
   const [showConflicts, setShowConflicts] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
   const [aboutInfo, setAboutInfo] = useState<{ version?: string; email?: string }>({})
+  const [isPasswordCached, setIsPasswordCached] = useState(false)
+  const [isCheckingPasswordCache, setIsCheckingPasswordCache] = useState(false)
 
   const selectedGroup = groups.find(g => g.id === selectedGroupId) || null
 
   // 快捷键: Cmd+S / Ctrl+S 保存
-  const handleApply = useCallback(() => {
-    setShowSudoPrompt(true)
+  const handleApply = useCallback(async () => {
+    // 检查密码是否已缓存
+    setIsCheckingPasswordCache(true)
+    try {
+      const cached = await hostsApi.isSudoPasswordCached()
+      setIsPasswordCached(cached)
+
+      if (cached) {
+        // 密码已缓存,直接应用
+        await applyHostsWithoutPassword()
+      } else {
+        // 密码未缓存,显示输入框
+        setShowSudoPrompt(true)
+      }
+    } catch (error) {
+      console.error('检查密码缓存状态失败:', error)
+      // 出错时显示输入框,让用户输入密码
+      setShowSudoPrompt(true)
+    } finally {
+      setIsCheckingPasswordCache(false)
+    }
   }, [])
 
   useHotkey('s', handleApply)
@@ -210,6 +231,34 @@ function App() {
     }
   }
 
+  // 应用配置的核心逻辑(不涉及密码验证)
+  const applyHostsWithoutPassword = async () => {
+    try {
+      // 1. 检测冲突
+      const detectedConflicts = await hostsApi.detectConflicts()
+      if (Object.keys(detectedConflicts).length > 0) {
+        setConflicts(detectedConflicts)
+        setShowConflicts(true)
+        return
+      }
+
+      // 2. 应用配置(不需要传递密码)
+      await hostsApi.applyHosts()
+
+      // 3. 清理状态
+      setShowSudoPrompt(false)
+      setSudoPassword('')
+      await loadVersions()
+      alert(t('common.success'))
+    } catch (error) {
+      console.error('Failed to apply hosts:', error)
+      alert(t('common.error'))
+      // 应用失败,清除密码缓存状态,让用户重新输入
+      setIsPasswordCached(false)
+      throw error
+    }
+  }
+
   const handleConfirmApply = async () => {
     try {
       // 1. 先验证 sudo 密码
@@ -220,25 +269,14 @@ function App() {
         return
       }
 
-      // 2. 检测冲突
-      const detectedConflicts = await hostsApi.detectConflicts()
-      if (Object.keys(detectedConflicts).length > 0) {
-        setConflicts(detectedConflicts)
-        setShowConflicts(true)
-        return
-      }
+      // 2. 密码验证成功,更新缓存状态
+      setIsPasswordCached(true)
 
-      // 3. 应用配置（不需要传递密码）
-      await hostsApi.applyHosts()
-
-      // 4. 清理状态
-      setShowSudoPrompt(false)
-      setSudoPassword('')
-      await loadVersions()
-      alert(t('common.success'))
+      // 3. 执行应用配置
+      await applyHostsWithoutPassword()
     } catch (error) {
       console.error('Failed to apply hosts:', error)
-      alert(t('common.error'))
+      // 错误已在 applyHostsWithoutPassword 中处理
     }
   }
 
@@ -263,10 +301,21 @@ function App() {
     }
   }
 
-  const handleIgnoreConflicts = () => {
+  const handleIgnoreConflicts = async () => {
     setShowConflicts(false)
-    // 继续应用
-    handleConfirmApply()
+    // 继续应用(跳过冲突检测)
+    try {
+      await hostsApi.applyHosts()
+      setShowSudoPrompt(false)
+      setSudoPassword('')
+      await loadVersions()
+      alert(t('common.success'))
+    } catch (error) {
+      console.error('Failed to apply hosts:', error)
+      alert(t('common.error'))
+      // 应用失败,清除密码缓存状态
+      setIsPasswordCached(false)
+    }
   }
 
   const handleBatchUpdateEntries = async (entries: Array<{ ip: string; hostname: string; comment: string; enabled: boolean }>) => {
