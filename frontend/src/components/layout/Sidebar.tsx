@@ -135,8 +135,8 @@ export function Sidebar({
                       ? 'border-primary bg-accent shadow-sm'
                       : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50'
                   )}
-                  // onClick={() => onSelectGroup(group)}
-                  // onDoubleClick={() => onDoubleClickGroup(group)}
+                  onClick={() => onSelectGroup(group)}
+                  onDoubleClick={() => onDoubleClickGroup(group)}
                 >
                   {/* 分组头部 */}
                   <div className="flex items-center p-3">
