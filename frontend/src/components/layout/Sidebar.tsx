@@ -142,7 +142,7 @@ export function Sidebar({
                   <div className="flex items-center p-3">
                     {/* 状态图标 */}
                     <button
-                      className="mr-3 flex-shrink-0"
+                      className="mr-3 flex-shrink-0 w-[30px] flex justify-center items-center rounded hover:bg-accent/50"
                       onClick={(e) => {
                    
                         onToggleGroup(group.id, !group.is_enabled)
@@ -158,7 +158,7 @@ export function Sidebar({
 
                     {/* 分组信息 */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <span className="font-medium truncate text-sm">{group.name}</span>
                         {/* 条目数量徽章 */}
                         {entryCount > 0 && (
@@ -175,10 +175,10 @@ export function Sidebar({
                     </div>
 
                     {/* 操作按钮组 */}
-                    <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 ml-2">
+                    <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 ml-2">
                       {/* 编辑按钮 */}
                       <button
-                        className="rounded p-1.5 hover:bg-accent"
+                        className="rounded hover:bg-accent w-[30px]"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleEditGroup(group)
@@ -190,7 +190,7 @@ export function Sidebar({
 
                       {/* 删除按钮 */}
                       <button
-                        className="rounded p-1.5 hover:bg-destructive/10"
+                        className="rounded hover:bg-destructive/10  w-[30px] flex justify-center items-center"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleDeleteClick(group)
@@ -295,6 +295,7 @@ export function Sidebar({
           <>
             <Button
               variant="outline"
+              
               onClick={handleCloseDeleteModal}
             >
               {t('common.cancel')}
