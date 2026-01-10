@@ -319,23 +319,35 @@ func (s *HostsApplicationService) GetVersions(ctx context.Context, limit int) ([
 // RollbackToVersion 回滚到指定版本
 // 用例: 用户在版本历史中选择一个版本并回滚
 func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto.RollbackRequest) error {
+	fmt.Println("[Service] RollbackToVersion 开始", "versionID:", req.VersionID, "hasPassword:", req.SudoPassword != "")
+
 	// 1. 查找目标版本
+	fmt.Println("[Service] 步骤1: 查找目标版本")
 	targetVersion, err := s.versionRepo.FindByID(ctx, req.VersionID)
 	if err != nil {
+		fmt.Println("[Service] 查找版本失败:", err.Error())
 		return fmt.Errorf("查找版本失败: %w", err)
 	}
+	fmt.Println("[Service] 找到版本:", targetVersion.ID[:8], "内容长度:", len(targetVersion.Content))
 
 	// 2. 备份当前 hosts 文件
+	fmt.Println("[Service] 步骤2: 备份当前 hosts 文件")
 	if err := s.hostsFileOp.Backup(); err != nil {
+		fmt.Println("[Service] 备份失败:", err.Error())
 		return fmt.Errorf("备份 hosts 文件失败: %w", err)
 	}
+	fmt.Println("[Service] 备份成功")
 
-	// 3. 写入目标版本内容（使用缓存的系统凭证）
-	if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
+	// 3. 写入目标版本内容（使用用户提供的密码）
+	fmt.Println("[Service] 步骤3: 写入目标版本内容")
+	if err := s.hostsFileOp.WriteWithPassword(targetVersion.Content, req.SudoPassword); err != nil {
+		fmt.Println("[Service] 写入失败:", err.Error())
 		return fmt.Errorf("写入 hosts 文件失败: %w", err)
 	}
+	fmt.Println("[Service] 写入成功")
 
 	// 4. 记录回滚操作
+	fmt.Println("[Service] 步骤4: 记录回滚操作")
 	currentContent, _ := s.hostsFileOp.ReadCurrent()
 	rollbackVersion := entity.NewHostsVersion(
 		currentContent,
@@ -343,9 +355,12 @@ func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto
 		entity.SourceRollback,
 	)
 	if err := s.versionRepo.Save(ctx, rollbackVersion); err != nil {
+		fmt.Println("[Service] 保存回滚版本失败:", err.Error())
 		return fmt.Errorf("保存回滚版本失败: %w", err)
 	}
+	fmt.Println("[Service] 回滚版本保存成功")
 
+	fmt.Println("[Service] RollbackToVersion 完全成功")
 	return nil
 }
 

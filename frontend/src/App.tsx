@@ -305,14 +305,26 @@ function App() {
   }
 
   const handleRollback = async (versionId: string, password: string) => {
+    console.log('[App] handleRollback 开始', { versionId })
     try {
+      console.log('[App] 调用 rollbackToVersion API 前')
       await hostsApi.rollbackToVersion(versionId, password)
-      toast.success(t('versions.rollback') + ' ' + t('common.success'))
+      console.log('[App] rollbackToVersion API 成功返回')
+
+      console.log('[App] 开始 loadVersions')
       await loadVersions()
+      console.log('[App] loadVersions 完成')
+
+      console.log('[App] 开始 loadGroups')
       await loadGroups()
+      console.log('[App] loadGroups 完成')
+
+      toast.success(t('versions.rollback') + ' ' + t('common.success'))
+      console.log('[App] handleRollback 完全成功')
     } catch (error) {
-      console.error('Failed to rollback:', error)
-      toast.error(t('versions.rollback') + ' ' + t('common.error'))
+      console.error('[App] handleRollback 失败', error)
+      // 抛出错误，让组件层处理
+      throw error
     }
   }
 

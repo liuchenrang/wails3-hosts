@@ -113,7 +113,15 @@ export const hostsApi = {
   },
 
   async rollbackToVersion(versionID: string, sudoPassword: string): Promise<void> {
-    await HostsHandler.RollbackToVersion(versionID, sudoPassword)
+    console.log('[hostsApi] rollbackToVersion 调用', { versionID })
+    try {
+      const result = await HostsHandler.RollbackToVersion(versionID, sudoPassword)
+      console.log('[hostsApi] rollbackToVersion 完成', { result })
+      return result
+    } catch (error) {
+      console.error('[hostsApi] rollbackToVersion 失败', error)
+      throw error
+    }
   },
 
   // ========== Sudo 管理 ==========

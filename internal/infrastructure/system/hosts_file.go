@@ -87,6 +87,29 @@ func (o *HostsFileOperator) Write(content string) error {
 	return nil
 }
 
+// WriteWithPassword 写入内容到 hosts 文件（使用提供的 sudo 密码）
+// 使用场景：直接使用用户提供的密码进行 sudo 操作
+func (o *HostsFileOperator) WriteWithPassword(content string, password string) error {
+	fmt.Println("[HostsFileOp] WriteWithPassword 开始", "路径:", o.hostsFilePath, "内容长度:", len(content), "密码长度:", len(password))
+
+	script := fmt.Sprintf("cat > %s", o.hostsFilePath)
+	fmt.Println("[HostsFileOp] 执行脚本:", script)
+
+	// 使用 SudoCommand 包装器，它会自动处理密码输入
+	cmd := NewSudoCommand([]string{"sh", "-c", script})
+	cmd.SetPassword(password)
+	cmd.SetStdin([]byte(content))
+
+	fmt.Println("[HostsFileOp] 开始执行 SudoCommand")
+	if err := cmd.Run(); err != nil {
+		fmt.Println("[HostsFileOp] SudoCommand 执行失败:", err.Error())
+		return fmt.Errorf("写入 hosts 文件失败: %w", err)
+	}
+
+	fmt.Println("[HostsFileOp] SudoCommand 执行成功")
+	return nil
+}
+
 // Backup 备份当前 hosts 文件
 func (o *HostsFileOperator) Backup() error {
 	// 读取当前内容

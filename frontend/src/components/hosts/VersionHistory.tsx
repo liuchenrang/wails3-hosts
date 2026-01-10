@@ -19,12 +19,37 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
   const { t } = useTranslation()
   const [rollbackVersion, setRollbackVersion] = useState<HostsVersion | null>(null)
   const [sudoPassword, setSudoPassword] = useState('')
+  const [isRollingBack, setIsRollingBack] = useState(false)
+  const [rollbackError, setRollbackError] = useState<string>('')
 
-  const handleRollback = () => {
-    if (rollbackVersion && sudoPassword) {
-      onRollback(rollbackVersion.id, sudoPassword)
+  const handleRollback = async () => {
+    if (!rollbackVersion || !sudoPassword) return
+
+    console.log('[VersionHistory] 开始回滚流程', {
+      versionId: rollbackVersion.id,
+      hasPassword: !!sudoPassword
+    })
+
+    setIsRollingBack(true)
+    setRollbackError('')
+
+    try {
+      console.log('[VersionHistory] 调用 onRollback 前')
+      await onRollback(rollbackVersion.id, sudoPassword)
+      console.log('[VersionHistory] 调用 onRollback 后，准备关闭模态框')
+
+      // 回滚成功，关闭所有模态框
       setRollbackVersion(null)
       setSudoPassword('')
+      onClose()
+      console.log('[VersionHistory] 模态框已关闭')
+    } catch (error) {
+      console.error('[VersionHistory] 回滚失败', error)
+      // 回滚失败，保持模态框打开，显示错误信息
+      setRollbackError(error instanceof Error ? error.message : t('versions.rollback') + ' ' + t('common.error'))
+    } finally {
+      console.log('[VersionHistory] finally 块，设置 isRollingBack = false')
+      setIsRollingBack(false)
     }
   }
 
@@ -121,8 +146,11 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
         <Modal
           isOpen={!!rollbackVersion}
           onClose={() => {
-            setRollbackVersion(null)
-            setSudoPassword('')
+            if (!isRollingBack) {
+              setRollbackVersion(null)
+              setSudoPassword('')
+              setRollbackError('')
+            }
           }}
           title={t('versions.rollback')}
           footer={
@@ -132,11 +160,15 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
                 onClick={() => {
                   setRollbackVersion(null)
                   setSudoPassword('')
+                  setRollbackError('')
                 }}
+                disabled={isRollingBack}
               >
                 {t('common.cancel')}
               </Button>
-              <Button onClick={handleRollback}>{t('common.confirm')}</Button>
+              <Button onClick={handleRollback} disabled={isRollingBack || !sudoPassword}>
+                {isRollingBack ? t('common.loading') : t('common.confirm')}
+              </Button>
             </>
           }
         >
@@ -156,8 +188,15 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
                 onChange={e => setSudoPassword(e.target.value)}
                 placeholder={t('sudo.passwordPlaceholder')}
                 className="mt-1"
+                disabled={isRollingBack}
+                autoFocus
               />
             </div>
+            {rollbackError && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
+                <p className="text-sm text-destructive">{rollbackError}</p>
+              </div>
+            )}
           </div>
         </Modal>
       )}

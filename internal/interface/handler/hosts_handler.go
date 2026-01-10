@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chen/wails3-hosts/internal/application/dto"
 	"github.com/chen/wails3-hosts/internal/application/service"
@@ -146,11 +147,21 @@ func (h *HostsHandler) GetVersions(limit int) ([]dto.HostsVersionDTO, error) {
 
 // RollbackToVersion 回滚到指定版本
 func (h *HostsHandler) RollbackToVersion(versionID, sudoPassword string) error {
+	fmt.Println("[Handler] RollbackToVersion 开始", "versionID:", versionID, "hasPassword:", sudoPassword != "")
+
 	req := dto.RollbackRequest{
 		VersionID:    versionID,
 		SudoPassword: sudoPassword,
 	}
-	return h.appService.RollbackToVersion(context.Background(), req)
+
+	fmt.Println("[Handler] 调用 appService.RollbackToVersion")
+	err := h.appService.RollbackToVersion(context.Background(), req)
+	if err != nil {
+		fmt.Println("[Handler] RollbackToVersion 失败:", err.Error())
+	} else {
+		fmt.Println("[Handler] RollbackToVersion 成功")
+	}
+	return err
 }
 
 // ========== Sudo 管理 ==========
