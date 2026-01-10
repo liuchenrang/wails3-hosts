@@ -113,7 +113,7 @@ export const hostsApi = {
   },
 
   async rollbackToVersion(versionID: string, sudoPassword: string): Promise<void> {
-    console.log('[hostsApi] rollbackToVersion 调用', { versionID })
+    console.log('[hostsApi] rollbackToVersion 调用', { versionID, hasPassword: sudoPassword !== '', passwordLength: sudoPassword.length })
     try {
       const result = await HostsHandler.RollbackToVersion(versionID, sudoPassword)
       console.log('[hostsApi] rollbackToVersion 完成', { result })
@@ -136,6 +136,9 @@ export const hostsApi = {
   },
 
   async isSudoPasswordCached(): Promise<boolean> {
-    return await HostsHandler.IsSudoPasswordCached()
+    console.log('[hostsApi] isSudoPasswordCached 调用')
+    const result = await HostsHandler.IsSudoPasswordCached()
+    console.log('[hostsApi] isSudoPasswordCached 结果', { cached: result })
+    return result
   },
 }

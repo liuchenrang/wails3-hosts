@@ -338,11 +338,27 @@ func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto
 	}
 	fmt.Println("[Service] 备份成功")
 
-	// 3. 写入目标版本内容（使用用户提供的密码）
+	// 3. 写入目标版本内容
 	fmt.Println("[Service] 步骤3: 写入目标版本内容")
-	if err := s.hostsFileOp.WriteWithPassword(targetVersion.Content, req.SudoPassword); err != nil {
-		fmt.Println("[Service] 写入失败:", err.Error())
-		return fmt.Errorf("写入 hosts 文件失败: %w", err)
+	if req.SudoPassword != "" {
+		// 使用用户提供的密码
+		fmt.Println("[Service] 使用用户提供的密码")
+		if err := s.hostsFileOp.WriteWithPassword(targetVersion.Content, req.SudoPassword); err != nil {
+			fmt.Println("[Service] 写入失败:", err.Error())
+			return fmt.Errorf("写入 hosts 文件失败: %w", err)
+		}
+	} else {
+		// 使用缓存的密码
+		fmt.Println("[Service] 使用缓存的密码")
+		// 检查是否有缓存的密码
+		if !s.sudoManager.IsPasswordCached() {
+			fmt.Println("[Service] 没有缓存的密码")
+			return fmt.Errorf("没有可用的 sudo 密码，请先验证密码")
+		}
+		if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
+			fmt.Println("[Service] 写入失败:", err.Error())
+			return fmt.Errorf("写入 hosts 文件失败: %w", err)
+		}
 	}
 	fmt.Println("[Service] 写入成功")
 
@@ -367,12 +383,19 @@ func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto
 // ValidateSudoPassword 验证 sudo 密码
 // 用例: 用户首次输入 sudo 密码
 func (s *HostsApplicationService) ValidateSudoPassword(ctx context.Context, req dto.ValidateSudoRequest) dto.ValidateSudoResponse {
+	fmt.Println("[Service] ValidateSudoPassword 开始验证")
 	valid := s.sudoManager.ValidatePassword(req.Password)
+	fmt.Println("[Service] ValidateSudoPassword 验证结果", "valid:", valid)
+
 	if valid {
 		// 缓存有效密码
+		fmt.Println("[Service] 密码验证成功，开始缓存密码")
 		s.sudoManager.CachePassword(req.Password)
+		fmt.Println("[Service] 密码缓存成功")
 		return dto.ValidateSudoResponse{Valid: true}
 	}
+
+	fmt.Println("[Service] 密码验证失败")
 	return dto.ValidateSudoResponse{
 		Valid: false,
 		Error: "sudo 密码无效",
@@ -382,7 +405,10 @@ func (s *HostsApplicationService) ValidateSudoPassword(ctx context.Context, req 
 // IsSudoPasswordCached 检查 sudo 密码是否已缓存
 // 用例: 前端判断是否需要显示密码输入框
 func (s *HostsApplicationService) IsSudoPasswordCached(ctx context.Context) bool {
-	return s.sudoManager.IsPasswordCached()
+	fmt.Println("[Service] IsSudoPasswordCached 开始检查")
+	cached := s.sudoManager.IsPasswordCached()
+	fmt.Println("[Service] IsSudoPasswordCached 检查完成", "cached:", cached)
+	return cached
 }
 
 // toGroupDTO 将领域实体转换为 DTO

@@ -1,29 +1,91 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Clock, RotateCcw } from 'lucide-react'
 import { HostsVersion } from '../../types/hosts'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 import { Input } from '../ui/Input'
+import { useToast } from '../../hooks/useToast'
 
 interface VersionHistoryProps {
   isOpen: boolean
   onClose: () => void
   versions: HostsVersion[]
-  onRollback: (versionId: string, password: string) => void
+  onRollback: (versionId: string, password?: string) => Promise<void>
+  checkPasswordCache: () => Promise<boolean>
 }
 
 // 版本历史组件
 // 单一职责: 显示和操作版本历史
-export function VersionHistory({ isOpen, onClose, versions, onRollback }: VersionHistoryProps) {
+export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPasswordCache }: VersionHistoryProps) {
   const { t } = useTranslation()
+  const toast = useToast()
   const [rollbackVersion, setRollbackVersion] = useState<HostsVersion | null>(null)
   const [sudoPassword, setSudoPassword] = useState('')
   const [isRollingBack, setIsRollingBack] = useState(false)
   const [rollbackError, setRollbackError] = useState<string>('')
+  const [isPasswordCached, setIsPasswordCached] = useState<boolean>(false)
+  const [isCheckingCache, setIsCheckingCache] = useState(false)
+
+  // 组件打开时检查密码缓存状态
+  useEffect(() => {
+    if (isOpen) {
+      console.log('[VersionHistory] 组件打开,开始检查密码缓存状态')
+      setIsCheckingCache(true)
+      checkPasswordCache()
+        .then((cached) => {
+          console.log('[VersionHistory] 初始化检查完成', { cached })
+          setIsPasswordCached(cached)
+        })
+        .catch((error) => {
+          console.error('[VersionHistory] 初始化检查失败', error)
+          setIsPasswordCached(false)
+        })
+        .finally(() => {
+          setIsCheckingCache(false)
+        })
+    }
+  }, [isOpen, checkPasswordCache])
+
+  // 点击回滚按钮的处理函数
+  const handleRollbackClick = async (version: HostsVersion) => {
+    console.log('[VersionHistory] 点击回滚按钮', {
+      versionId: version.id,
+      isPasswordCached,
+      isCheckingCache
+    })
+
+    setIsRollingBack(true)
+    try {
+      // 实时向后端检查密码缓存状态
+      console.log('[VersionHistory] 实时检查密码缓存状态')
+      const cached = await checkPasswordCache()
+      console.log('[VersionHistory] 密码缓存状态:', cached)
+
+      // 更新本地状态
+      setIsPasswordCached(cached)
+
+      if (cached) {
+        // 密码已缓存,直接执行回滚
+        console.log('[VersionHistory] 密码已缓存,直接执行回滚')
+        await onRollback(version.id, undefined)
+        toast.success(t('versions.rollback') + ' ' + t('common.success'))
+      } else {
+        // 密码未缓存,显示确认对话框
+        console.log('[VersionHistory] 密码未缓存,显示确认对话框')
+        setRollbackVersion(version)
+      }
+    } catch (error) {
+      console.error('[VersionHistory] 检查密码缓存失败', error)
+      // 出错时显示确认对话框,让用户输入密码
+      setRollbackVersion(version)
+    } finally {
+      setIsRollingBack(false)
+    }
+  }
 
   const handleRollback = async () => {
-    if (!rollbackVersion || !sudoPassword) return
+    if (!rollbackVersion) return
 
     console.log('[VersionHistory] 开始回滚流程', {
       versionId: rollbackVersion.id,
@@ -35,6 +97,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
 
     try {
       console.log('[VersionHistory] 调用 onRollback 前')
+      // 传递用户输入的密码(空字符串也传递,后端会使用缓存的密码)
       await onRollback(rollbackVersion.id, sudoPassword)
       console.log('[VersionHistory] 调用 onRollback 后，准备关闭模态框')
 
@@ -78,6 +141,22 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
         <div className="space-y-2">
           <div className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
             {t('versions.maxVersions')}
+          </div>
+          {/* 密码缓存状态提示 */}
+          <div className="rounded-lg px-3 py-2 text-xs">
+            {isCheckingCache ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>正在检查密码缓存状态...</span>
+              </div>
+            ) : isPasswordCached ? (
+              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                <span>✓ 密码已缓存,可以直接回滚</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                <span>⚠ 密码未缓存,回滚时需要输入密码</span>
+              </div>
+            )}
           </div>
           <div className="max-h-96 overflow-auto">
             {versions.length === 0 ? (
@@ -125,11 +204,12 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback }: Versio
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setRollbackVersion(version)}
+                        onClick={() => handleRollbackClick(version)}
+                        disabled={isRollingBack}
                         className="min-w-[4em] whitespace-nowrap"
                       >
                         <RotateCcw className="mr-1 h-4 w-4" />
-                        {t('versions.rollback')}
+                        {isRollingBack ? t('common.loading') : t('versions.rollback')}
                       </Button>
                     </div>
                   </div>

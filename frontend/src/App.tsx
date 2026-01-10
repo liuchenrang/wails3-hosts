@@ -68,7 +68,6 @@ function App() {
   const [showConflicts, setShowConflicts] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
   const [aboutInfo, setAboutInfo] = useState<{ version?: string; email?: string }>({})
-  const [isPasswordCached, setIsPasswordCached] = useState(false)
   const [isCheckingPasswordCache, setIsCheckingPasswordCache] = useState(false)
 
   const selectedGroup = groups.find(g => g.id === selectedGroupId) || null
@@ -79,7 +78,6 @@ function App() {
     setIsCheckingPasswordCache(true)
     try {
       const cached = await hostsApi.isSudoPasswordCached()
-      setIsPasswordCached(cached)
 
       if (cached) {
         // 密码已缓存,直接应用
@@ -268,8 +266,6 @@ function App() {
     } catch (error) {
       console.error('Failed to apply hosts:', error)
       toast.error(t('mainPanel.apply') + ' ' + t('common.error'))
-      // 应用失败,清除密码缓存状态,让用户重新输入
-      setIsPasswordCached(false)
       throw error
     }
   }
@@ -284,10 +280,7 @@ function App() {
         return
       }
 
-      // 2. 密码验证成功,更新缓存状态
-      setIsPasswordCached(true)
-
-      // 3. 执行应用配置
+      // 2. 执行应用配置
       await applyHostsWithoutPassword()
     } catch (error) {
       console.error('Failed to apply hosts:', error)
@@ -304,11 +297,18 @@ function App() {
     }
   }
 
-  const handleRollback = async (versionId: string, password: string) => {
-    console.log('[App] handleRollback 开始', { versionId })
+  const handleRollback = async (versionId: string, password?: string) => {
+    console.log('[App] handleRollback 开始', { versionId, hasPassword: password !== undefined })
     try {
+      // 如果没有提供密码，说明使用缓存的密码
+      if (password === undefined) {
+        console.log('[App] 使用缓存的sudo密码')
+        // 后端会自动使用缓存的密码
+      }
+
       console.log('[App] 调用 rollbackToVersion API 前')
-      await hostsApi.rollbackToVersion(versionId, password)
+      // 注意：如果password是undefined,传递空字符串;否则传递实际密码
+      await hostsApi.rollbackToVersion(versionId, password ?? '')
       console.log('[App] rollbackToVersion API 成功返回')
 
       console.log('[App] 开始 loadVersions')
@@ -328,6 +328,19 @@ function App() {
     }
   }
 
+  // 检查密码缓存状态的函数(供VersionHistory组件使用)
+  const handleCheckPasswordCache = async (): Promise<boolean> => {
+    console.log('[App] handleCheckPasswordCache 开始检查')
+    try {
+      const cached = await hostsApi.isSudoPasswordCached()
+      console.log('[App] handleCheckPasswordCache 检查结果', { cached })
+      return cached
+    } catch (error) {
+      console.error('[App] 检查密码缓存状态失败:', error)
+      return false
+    }
+  }
+
   const handleIgnoreConflicts = async () => {
     setShowConflicts(false)
     // 继续应用(跳过冲突检测)
@@ -340,8 +353,6 @@ function App() {
     } catch (error) {
       console.error('Failed to apply hosts:', error)
       toast.error(t('mainPanel.apply') + ' ' + t('common.error'))
-      // 应用失败,清除密码缓存状态
-      setIsPasswordCached(false)
     }
   }
 
@@ -495,6 +506,7 @@ function App() {
           onClose={() => setShowVersions(false)}
           versions={versions}
           onRollback={handleRollback}
+          checkPasswordCache={handleCheckPasswordCache}
         />
 
         {/* 关于我们对话框 */}
