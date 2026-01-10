@@ -343,7 +343,17 @@ func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto
 	if req.SudoPassword != "" {
 		// 使用用户提供的密码
 		fmt.Println("[Service] 使用用户提供的密码")
-		if err := s.hostsFileOp.WriteWithPassword(targetVersion.Content, req.SudoPassword); err != nil {
+
+		// 先验证密码并让系统缓存凭证（使用 sudo -v）
+		fmt.Println("[Service] 验证密码并缓存到系统")
+		if !s.sudoManager.ValidatePassword(req.SudoPassword) {
+			fmt.Println("[Service] 密码验证失败")
+			return fmt.Errorf("sudo 密码验证失败")
+		}
+		fmt.Println("[Service] 密码验证成功，系统已缓存凭证")
+
+		// 验证成功后，直接使用 Write()（系统已经缓存了凭证）
+		if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
 			fmt.Println("[Service] 写入失败:", err.Error())
 			return fmt.Errorf("写入 hosts 文件失败: %w", err)
 		}

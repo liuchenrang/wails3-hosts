@@ -79,7 +79,14 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
       console.log('[VersionHistory] 调用 onRollback 后，准备关闭模态框')
 
       // 回滚成功后，刷新密码缓存状态
-      await refreshCacheStatus()
+      try {
+        const cached = await checkPasswordCache()
+        console.log('[VersionHistory] 回滚成功后刷新缓存状态:', cached)
+        setRealtimeCacheStatus(cached)
+      } catch (error) {
+        console.error('[VersionHistory] 刷新缓存状态失败', error)
+        setRealtimeCacheStatus(false)
+      }
 
       // 关闭所有模态框
       setRollbackVersion(null)
@@ -108,7 +115,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
   // 刷新密码缓存状态的辅助函数
   const refreshCacheStatus = async () => {
     console.log('[VersionHistory] 刷新密码缓存状态')
-    setIsCheckingRealtimeCache(true)
+    setIsCheckingCache(true)
     try {
       const cached = await checkPasswordCache()
       console.log('[VersionHistory] 刷新后的缓存状态:', cached)
@@ -117,7 +124,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
       console.error('[VersionHistory] 刷新缓存状态失败', error)
       setRealtimeCacheStatus(false)
     } finally {
-      setIsCheckingRealtimeCache(false)
+      setIsCheckingCache(false)
     }
   }
 
@@ -147,7 +154,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
           </div>
           {/* 密码缓存状态提示 */}
           <div className="rounded-lg px-3 py-2 text-xs">
-            {isCheckingRealtimeCache ? (
+            {isCheckingCache ? (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <span>正在检查密码缓存状态...</span>
               </div>
@@ -228,13 +235,12 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
       {rollbackVersion && (
         <Modal
           isOpen={!!rollbackVersion}
-          onClose={async () => {
+          onClose={() => {
             if (!isRollingBack) {
               setRollbackVersion(null)
               setSudoPassword('')
               setRollbackError('')
-              // 关闭时刷新密码缓存状态
-              await refreshCacheStatus()
+              setRealtimeCacheStatus(null)
             }
           }}
           title={t('versions.rollback')}
@@ -242,12 +248,11 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
             <>
               <Button
                 variant="outline"
-                onClick={async () => {
+                onClick={() => {
                   setRollbackVersion(null)
                   setSudoPassword('')
                   setRollbackError('')
-                  // 关闭时刷新密码缓存状态
-                  await refreshCacheStatus()
+                  setRealtimeCacheStatus(null)
                 }}
                 disabled={isRollingBack}
               >
