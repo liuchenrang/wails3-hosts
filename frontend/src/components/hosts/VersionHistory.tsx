@@ -134,6 +134,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
       <Modal
         isOpen={isOpen}
         onClose={onClose}
+        maxWidth="max-w-[50%]"
 
         title={
           <div className="flex items-center gap-2">

@@ -8,11 +8,12 @@ interface ModalProps {
   title: string
   children: ReactNode
   footer?: ReactNode
+  maxWidth?: string
 }
 
 // 模态框组件
 // 单一职责: 提供统一的模态框容器
-export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, footer, maxWidth = 'max-w-md' }: ModalProps) {
   if (!isOpen) return null
 
   return (
@@ -24,7 +25,7 @@ export function Modal({ isOpen, onClose, title, children, footer }: ModalProps) 
       />
 
       {/* 模态框内容 */}
-      <div className="relative z-50 w-full max-w-md rounded-lg border bg-background p-6 shadow-lg">
+      <div className={cn("relative z-50 w-full rounded-lg border bg-background p-6 shadow-lg", maxWidth)}>
         <h2 className="text-lg font-semibold">{title}</h2>
         <div className="mt-4">{children}</div>
         {footer && <div className="mt-6 flex justify-end gap-2">{footer}</div>}
