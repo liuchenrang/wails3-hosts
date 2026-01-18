@@ -181,9 +181,9 @@ make clean-all
 
 ## 📚 相关文档
 
-- **快速启动**: [QUICKSTART.md](./QUICKSTART.md)
-- **详细开发指南**: [DEVELOPMENT.md](./DEVELOPMENT.md)
-- **项目README**: [README.md](./README.md)
+- **快速启动**: [QUICKSTART.md](QUICKSTART.md)
+- **详细开发指南**: [DEVELOPMENT.md](DEVELOPMENT.md)
+- **项目README**: [README.md](../README.md)
 
 ## 🎉 配置完成!
 

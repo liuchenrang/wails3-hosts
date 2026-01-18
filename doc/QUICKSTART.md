@@ -94,7 +94,7 @@ make bindings:clean  # 清理并重新生成
 
 ## 📚 详细文档
 
-查看完整的开发文档: [DEVELOPMENT.md](./DEVELOPMENT.md)
+查看完整的开发文档: [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ## 🎉 开始开发
 
