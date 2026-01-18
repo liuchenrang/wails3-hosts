@@ -33,6 +33,8 @@ export const zhCN = {
       groupEnabled: '已启用',
       groupDisabled: '已禁用',
       toggleGroupError: '切换分组状态失败',
+      reorderSuccess: '排序已更新',
+      reorderError: '排序失败',
     },
     // 主面板
     mainPanel: {

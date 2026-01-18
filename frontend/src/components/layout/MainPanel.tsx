@@ -5,6 +5,7 @@ import { HostsGroup } from '../../types/hosts'
 import { Button } from '../ui/Button'
 import { Textarea } from '../ui/Textarea'
 import React from "react"
+import {t} from "i18next";
 
 interface MainPanelProps {
   group: HostsGroup | null

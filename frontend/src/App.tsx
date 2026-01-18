@@ -393,6 +393,26 @@ function App() {
     }
   }
 
+  const handleReorderGroups = async (groupIds: string[]) => {
+    try {
+      // 乐观更新：立即更新本地状态
+      const groupMap = new Map(groups.map(g => [g.id, g]))
+      const reorderedGroups = groupIds.map(id => groupMap.get(id)).filter(Boolean) as HostsGroup[]
+      setGroups(reorderedGroups)
+
+      // 调用 API 保存
+      await hostsApi.reorderGroups(groupIds)
+
+      // 显示成功提示
+      toast.success(t('sidebar.reorderSuccess') || '排序已更新')
+    } catch (error) {
+      console.error('Failed to reorder groups:', error)
+      // 失败时回滚状态
+      toast.error(t('sidebar.reorderError') || '排序失败')
+      await loadGroups()
+    }
+  }
+
   return (
     <>
       <VibeKanbanWebCompanion />
@@ -438,6 +458,7 @@ function App() {
               onDeleteGroup={handleDeleteGroup}
               onToggleGroup={handleToggleGroup}
               onDoubleClickGroup={handleDoubleClickGroup}
+              onReorderGroups={handleReorderGroups}
           />
 
           {/* 右侧主面板 */}

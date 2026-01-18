@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Power, Trash2, Edit, AlertTriangle } from 'lucide-react'
+import { Plus, Power, Trash2, Edit, AlertTriangle, GripVertical } from 'lucide-react'
 import { HostsGroup } from '../../types/hosts'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
@@ -17,6 +17,7 @@ interface SidebarProps {
   onDeleteGroup: (id: string) => void
   onToggleGroup: (id: string, enabled: boolean) => void
   onDoubleClickGroup: (group: HostsGroup) => void
+  onReorderGroups: (groupIds: string[]) => void
 }
 // 侧边栏组件
 export function Sidebar({
@@ -28,6 +29,7 @@ export function Sidebar({
   onDeleteGroup,
   onToggleGroup,
   onDoubleClickGroup,
+  onReorderGroups,
 }: SidebarProps) {
   const { t } = useTranslation()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -37,6 +39,106 @@ export function Sidebar({
   const [deletingGroup, setDeletingGroup] = useState<HostsGroup | null>(null)
   const [newGroupName, setNewGroupName] = useState('')
   const [newGroupDesc, setNewGroupDesc] = useState('')
+
+  // 拖动相关状态
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+  const dragStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const isDragging = useRef(false)
+
+  // 拖动开始
+  const handleDragStart = (e: React.DragEvent, groupId: string) => {
+    setDraggedId(groupId)
+    isDragging.current = true
+    dragStartPos.current = { x: e.clientX, y: e.clientY }
+
+    // 设置拖动效果
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', groupId)
+
+    // 设置拖动时的透明度
+    setTimeout(() => {
+      e.target.closest('.group-item')?.classList.add('opacity-50')
+    }, 0)
+  }
+
+  // 拖动结束
+  const handleDragEnd = (e: React.DragEvent) => {
+    isDragging.current = false
+    setDraggedId(null)
+    setDragOverId(null)
+
+    // 移除透明度
+    document.querySelectorAll('.group-item.opacity-50').forEach(el => {
+      el.classList.remove('opacity-50')
+    })
+  }
+
+  // 拖动经过
+  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+
+    if (draggedId && draggedId !== targetId) {
+      setDragOverId(targetId)
+    }
+  }
+
+  // 拖动离开
+  const handleDragLeave = (e: React.DragEvent) => {
+    // 只有真正离开目标元素时才清除
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setDragOverId(null)
+    }
+  }
+
+  // 放置
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+
+    if (!draggedId || draggedId === targetId) {
+      setDragOverId(null)
+      return
+    }
+
+    // 计算新顺序
+    const oldIndex = groups.findIndex(g => g.id === draggedId)
+    const newIndex = groups.findIndex(g => g.id === targetId)
+
+    // 创建新的顺序数组
+    const newGroups = [...groups]
+    const [removed] = newGroups.splice(oldIndex, 1)
+    newGroups.splice(newIndex, 0, removed)
+
+    // 调用父组件的排序函数
+    onReorderGroups(newGroups.map(g => g.id))
+
+    setDragOverId(null)
+  }
+
+  // 点击处理（区分点击和拖动）
+  const handleGroupClick = (e: React.MouseEvent, group: HostsGroup) => {
+    // 如果正在拖动，不触发点击
+    if (isDragging.current) {
+      isDragging.current = false
+      return
+    }
+
+    // 计算鼠标移动距离
+    const moveDistance = Math.sqrt(
+      Math.pow(e.clientX - dragStartPos.current.x, 2) +
+      Math.pow(e.clientY - dragStartPos.current.y, 2)
+    )
+
+    // 如果移动距离小于 5px，视为点击
+    if (moveDistance < 5) {
+      onSelectGroup(group)
+    }
+  }
 
   const handleCreateGroup = () => {
     if (newGroupName.trim()) {
@@ -125,26 +227,46 @@ export function Sidebar({
             {groups.map((group) => {
               const isSelected = selectedGroupId === group.id
               const entryCount = getEntryCount(group)
+              const isDragged = draggedId === group.id
+              const isDragOver = dragOverId === group.id
 
               return (
                 <div
                   key={group.id}
                   className={cn(
-                    'group relative rounded-lg border transition-all cursor-pointer',
+                    'group relative rounded-lg border transition-all cursor-pointer group-item',
                     isSelected
                       ? 'border-primary bg-accent shadow-sm'
-                      : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50'
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-accent/50',
+                    // 拖动视觉反馈
+                    isDragged && 'opacity-50',
+                    isDragOver && 'border-primary border-dashed bg-accent/50'
                   )}
-                  onClick={() => onSelectGroup(group)}
+                  onClick={(e) => handleGroupClick(e, group)}
                   onDoubleClick={() => onDoubleClickGroup(group)}
+                  onDragOver={(e) => handleDragOver(e, group.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, group.id)}
                 >
                   {/* 分组头部 */}
                   <div className="flex items-center p-3">
+                    {/* 拖动手柄 */}
+                    <div
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, group.id)}
+                      onDragEnd={handleDragEnd}
+                      className="mr-2 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 hover:bg-accent/50 rounded w-[24px] h-[24px] flex items-center justify-center transition-opacity"
+                    >
+                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    </div>
+
                     {/* 状态图标 */}
                     <button
+                      draggable={false}
+                      onDragStart={(e) => e.stopPropagation()}
                       className="mr-3 flex-shrink-0 w-[30px] flex justify-center items-center rounded hover:bg-accent/50"
                       onClick={(e) => {
-                   
+                        e.stopPropagation()
                         onToggleGroup(group.id, !group.is_enabled)
                       }}
                     >
@@ -178,6 +300,8 @@ export function Sidebar({
                     <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 ml-2">
                       {/* 编辑按钮 */}
                       <button
+                        draggable={false}
+                        onDragStart={(e) => e.stopPropagation()}
                         className="rounded hover:bg-accent w-[30px]"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -190,6 +314,8 @@ export function Sidebar({
 
                       {/* 删除按钮 */}
                       <button
+                        draggable={false}
+                        onDragStart={(e) => e.stopPropagation()}
                         className="rounded hover:bg-destructive/10  w-[30px] flex justify-center items-center"
                         onClick={(e) => {
                           e.stopPropagation()
