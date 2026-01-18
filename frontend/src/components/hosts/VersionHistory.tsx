@@ -6,6 +6,7 @@ import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 import { Input } from '../ui/Input'
 import { useToast } from '../../hooks/useToast'
+import React from "react"
 
 interface VersionHistoryProps {
   isOpen: boolean
@@ -133,6 +134,7 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
       <Modal
         isOpen={isOpen}
         onClose={onClose}
+
         title={
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -291,6 +293,11 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
                   type="password"
                   value={sudoPassword}
                   onChange={e => setSudoPassword(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      handleRollback()
+                    }
+                  }}
                   placeholder={t('sudo.passwordPlaceholder')}
                   className="mt-1"
                   disabled={isRollingBack}

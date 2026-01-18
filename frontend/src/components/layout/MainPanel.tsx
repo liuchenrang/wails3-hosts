@@ -13,7 +13,7 @@ interface MainPanelProps {
   onDeleteEntry: (entryId: string) => void
   onApply: () => void
   onPreview: () => void
-  onBatchUpdate: (entries: Array<{ ip: string; hostname: string; comment: string; enabled: boolean }>) => void
+  onBatchUpdate: (entries: Array<{ ip: string; hostname: string; comment: string; enabled: boolean }>, silent?: boolean) => Promise<void>
 }
 
 // 验证 IP 地址格式
@@ -145,7 +145,7 @@ export function MainPanel({
     return errors
   }
 
-  // 处理光标离开时的自动保存
+  // 处理光标离开时的自动保存（静默模式，不显示提示）
   const handleBlur = () => {
     const errors = validateContent(memoContent)
 
@@ -159,19 +159,19 @@ export function MainPanel({
     setShowErrors(false)
 
     const entries = parseMemoToEntries(memoContent)
-    onBatchUpdate(entries)
-    onApply()
+    // 静默保存，不触发应用配置
+    onBatchUpdate(entries, true)
   }
 
   if (!group) {
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground">
+      <div className="flex h-full items-center justify-center text-muted-foreground w-full">
         {t('mainPanel.selectGroup')}
       </div>
     )
   }
 
-  const handleSaveMemo = () => {
+  const handleSaveMemo = async () => {
     const errors = validateContent(memoContent)
 
     if (errors.length > 0) {
@@ -183,9 +183,12 @@ export function MainPanel({
     setValidationErrors([])
     setShowErrors(false)
 
+    // 先保存修改（静默模式，不显示提示）
     const entries = parseMemoToEntries(memoContent)
-    onBatchUpdate(entries)
-    onApply()
+    await onBatchUpdate(entries, true)
+
+    // 然后应用配置（会显示成功提示）
+    await onApply()
   }
 
   const handleReset = () => {

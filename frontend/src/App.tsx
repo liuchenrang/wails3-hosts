@@ -356,15 +356,23 @@ function App() {
     }
   }
 
-  const handleBatchUpdateEntries = async (entries: Array<{ ip: string; hostname: string; comment: string; enabled: boolean }>) => {
+  const handleBatchUpdateEntries = async (
+    entries: Array<{ ip: string; hostname: string; comment: string; enabled: boolean }>,
+    silent: boolean = false
+  ) => {
     if (!selectedGroupId) return
     try {
       await hostsApi.batchUpdateEntries(selectedGroupId, entries)
       await loadGroups()
-      toast.success(t('mainPanel.batchUpdate') + ' ' + t('common.success'))
+      // 只有在非静默模式下才显示提示
+      if (!silent) {
+        toast.success(t('mainPanel.batchUpdate') + ' ' + t('common.success'))
+      }
     } catch (error) {
       console.error('Failed to batch update entries:', error)
-      toast.error(t('mainPanel.batchUpdate') + ' ' + t('common.error'))
+      if (!silent) {
+        toast.error(t('mainPanel.batchUpdate') + ' ' + t('common.error'))
+      }
       throw error
     }
   }
@@ -483,6 +491,11 @@ function App() {
                 type="password"
                 value={sudoPassword}
                 onChange={e => setSudoPassword(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    handleConfirmApply()
+                  }
+                }}
                 placeholder={t('sudo.passwordPlaceholder')}
                 className="mt-1"
               />

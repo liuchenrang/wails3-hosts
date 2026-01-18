@@ -8,6 +8,7 @@ import (
 	"github.com/chen/wails3-hosts/internal/domain/entity"
 	"github.com/chen/wails3-hosts/internal/domain/repository"
 	"github.com/chen/wails3-hosts/internal/domain/service"
+	"github.com/chen/wails3-hosts/internal/domain/valueobject"
 	"github.com/chen/wails3-hosts/internal/infrastructure/system"
 )
 
@@ -69,10 +70,27 @@ func (s *HostsApplicationService) CreateGroup(ctx context.Context, req dto.Creat
 
 // GetAllGroups 获取所有分组
 // 用例: 加载左侧分组列表
+// 副作用: 如果没有任何分组，自动创建默认分组并导入系统hosts内容
 func (s *HostsApplicationService) GetAllGroups(ctx context.Context) ([]dto.HostsGroupDTO, error) {
 	groups, err := s.hostsRepo.FindAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查找分组失败: %w", err)
+	}
+
+	// 如果没有分组，自动创建默认分组
+	if len(groups) == 0 {
+		fmt.Println("[Service] 检测到没有分组，开始创建默认分组")
+		if err := s.createDefaultGroupWithSystemHosts(ctx); err != nil {
+			fmt.Printf("[Service] 创建默认分组失败: %v\n", err)
+			// 不阻断流程，继续返回空分组列表
+		} else {
+			// 重新加载分组列表
+			groups, err = s.hostsRepo.FindAll(ctx)
+			if err != nil {
+				return nil, fmt.Errorf("查找分组失败: %w", err)
+			}
+			fmt.Println("[Service] 默认分组创建成功")
+		}
 	}
 
 	// 按照order字段排序
@@ -94,6 +112,48 @@ func (s *HostsApplicationService) GetAllGroups(ctx context.Context) ([]dto.Hosts
 		result = append(result, *s.toGroupDTO(group))
 	}
 	return result, nil
+}
+
+// createDefaultGroupWithSystemHosts 创建默认分组并导入系统hosts内容
+// 用例: 首次启动时自动创建默认分组
+func (s *HostsApplicationService) createDefaultGroupWithSystemHosts(ctx context.Context) error {
+	// 1. 读取系统hosts文件内容
+	systemContent, err := s.hostsFileOp.ReadCurrent()
+	if err != nil {
+		return fmt.Errorf("读取系统hosts文件失败: %w", err)
+	}
+
+	// 2. 解析hosts内容
+	hostsContent := valueobject.NewHostsContent(systemContent)
+	fmt.Printf("[Service] 从系统hosts文件解析到 %d 个条目\n", hostsContent.GetEntryCount())
+
+	// 3. 创建默认分组
+	defaultGroup := entity.NewHostsGroup(
+		"默认分组",
+		"从系统hosts文件自动导入的条目",
+	)
+	defaultGroup.SetEnabled(true) // 默认启用
+	defaultGroup.SetOrder(0)      // 排在第一位
+
+	// 4. 添加解析出的条目到分组
+	importCount := 0
+	for _, entry := range hostsContent.ParsedEntries {
+		if err := defaultGroup.AddEntry(entry); err != nil {
+			// 跳过无效条目，继续导入其他条目
+			fmt.Printf("[Service] 跳过无效条目: %s -> %s, 错误: %v\n", entry.IP, entry.Hostname, err)
+			continue
+		}
+		importCount++
+	}
+
+	fmt.Printf("[Service] 成功导入 %d 个条目到默认分组\n", importCount)
+
+	// 5. 保存分组
+	if err := s.hostsRepo.Save(ctx, defaultGroup); err != nil {
+		return fmt.Errorf("保存默认分组失败: %w", err)
+	}
+
+	return nil
 }
 
 // GetGroupByID 根据 ID 获取分组
