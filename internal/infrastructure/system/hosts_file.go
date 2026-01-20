@@ -1,26 +1,39 @@
 package system
 
 import (
-	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 )
 
 // HostsFileOperator hosts 文件操作器
 // 单一职责: 负责系统 hosts 文件的读写操作
 // DDD: 基础设施层提供与外部系统的交互
+//
+// 设计原则应用:
+// - D: 依赖 PrivilegeElevator 抽象接口，而非具体实现
+// - O: 通过接口支持不同平台的权限提升方式
 type HostsFileOperator struct {
 	hostsFilePath string
 	backupDir     string
+	elevator      PrivilegeElevator // 依赖注入: 平台特定的权限提升器
 }
 
 // NewHostsFileOperator 创建操作器实例
-func NewHostsFileOperator() (*HostsFileOperator, error) {
+//
+// 参数:
+//   - elevator: 平台特定的权限提升器（由外部注入）
+//
+// 返回:
+//   - *HostsFileOperator: 操作器实例
+//   - error: 创建失败时的错误
+//
+// 使用示例:
+//   elevator, _ := system.NewPrivilegeElevator()
+//   operator, err := system.NewHostsFileOperator(elevator)
+func NewHostsFileOperator(elevator PrivilegeElevator) (*HostsFileOperator, error) {
 	hostsPath, err := getHostsFilePath()
 	if err != nil {
 		return nil, err
@@ -39,7 +52,16 @@ func NewHostsFileOperator() (*HostsFileOperator, error) {
 	return &HostsFileOperator{
 		hostsFilePath: hostsPath,
 		backupDir:     backupDir,
+		elevator:      elevator, // 注入依赖
 	}, nil
+}
+
+// CanCacheCredentials 检查是否可以缓存凭据
+// 实现: 委托给提升器接口
+//
+// 用途: 前端根据此值决定是否显示"密码已缓存"提示
+func (o *HostsFileOperator) CanCacheCredentials() bool {
+	return o.elevator.CanCacheCredentials()
 }
 
 // getHostsFilePath 获取系统 hosts 文件路径
@@ -64,49 +86,41 @@ func (o *HostsFileOperator) ReadCurrent() (string, error) {
 	return string(data), nil
 }
 
-// Write 写入内容到 hosts 文件（需要 sudo 权限）
-// 注意：此方法不接收密码参数，密码必须提前通过 SudoManager 缓存
+// Write 写入内容到 hosts 文件（需要提升权限）
+// 实现: 使用提升器接口执行写入操作
+//
+// 注意:
+// - Unix: 应先调用 ValidateSudoPassword 验证密码
+// - Windows: 会自动弹出 UAC 提示
 func (o *HostsFileOperator) Write(content string) error {
-	// 此方法不再需要密码参数
-	// 密码应该已经通过 ValidateSudoPassword 验证并缓存
-	// 直接调用 sudo，使用缓存的凭证
-	script := fmt.Sprintf("cat > %s", o.hostsFilePath)
-
-	// 创建 sudo 命令，不设置密码（使用系统缓存的凭证）
-	cmd := exec.Command("sudo", "sh", "-c", script)
-	cmd.Stdin = strings.NewReader(content)
-
-	// 捕获输出
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("写入 hosts 文件失败: %w, stderr: %s", err, stderr.String())
-	}
-
-	return nil
+	// 委托给提升器接口
+	return o.elevator.Execute(content)
 }
 
-// WriteWithPassword 写入内容到 hosts 文件（使用提供的 sudo 密码）
+// WriteWithPassword 写入内容到 hosts 文件（使用提供的凭据）
 // 使用场景：直接使用用户提供的密码进行 sudo 操作
+//
+// 平台差异:
+// - Unix: 使用密码验证并执行写入
+// - Windows: 密码参数被忽略，通过 UAC 提权
+//
+// 注意: 此方法为向后兼容保留，新代码应优先使用 Validate + Write 组合
 func (o *HostsFileOperator) WriteWithPassword(content string, password string) error {
 	fmt.Println("[HostsFileOp] WriteWithPassword 开始", "路径:", o.hostsFilePath, "内容长度:", len(content), "密码长度:", len(password))
 
-	script := fmt.Sprintf("cat > %s", o.hostsFilePath)
-	fmt.Println("[HostsFileOp] 执行脚本:", script)
+	// Unix: 先验证密码（缓存到系统）
+	// Windows: password 被忽略
+	if !o.elevator.Validate(password) {
+		return fmt.Errorf("凭据验证失败")
+	}
 
-	// 使用 SudoCommand 包装器，它会自动处理密码输入
-	cmd := NewSudoCommand([]string{"sh", "-c", script})
-	cmd.SetPassword(password)
-	cmd.SetStdin([]byte(content))
-
-	fmt.Println("[HostsFileOp] 开始执行 SudoCommand")
-	if err := cmd.Run(); err != nil {
-		fmt.Println("[HostsFileOp] SudoCommand 执行失败:", err.Error())
+	// 执行写入
+	if err := o.elevator.Execute(content); err != nil {
+		fmt.Println("[HostsFileOp] 提升器执行失败:", err.Error())
 		return fmt.Errorf("写入 hosts 文件失败: %w", err)
 	}
 
-	fmt.Println("[HostsFileOp] SudoCommand 执行成功")
+	fmt.Println("[HostsFileOp] 写入成功")
 	return nil
 }
 

@@ -58,7 +58,7 @@ export function Sidebar({
 
     // 设置拖动时的透明度
     setTimeout(() => {
-      e.target.closest('.group-item')?.classList.add('opacity-50')
+      (e.target as HTMLElement).closest('.group-item')?.classList.add('opacity-50')
     }, 0)
   }
 
@@ -250,21 +250,11 @@ export function Sidebar({
                 >
                   {/* 分组头部 */}
                   <div className="flex items-center p-3">
-                    {/* 拖动手柄 */}
-                    <div
-                      draggable={true}
-                      onDragStart={(e) => handleDragStart(e, group.id)}
-                      onDragEnd={handleDragEnd}
-                      className="mr-2 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 hover:bg-accent/50 rounded w-[24px] h-[24px] flex items-center justify-center transition-opacity"
-                    >
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    </div>
-
                     {/* 状态图标 */}
                     <button
                       draggable={false}
                       onDragStart={(e) => e.stopPropagation()}
-                      className="mr-3 flex-shrink-0 w-[30px] flex justify-center items-center rounded hover:bg-accent/50"
+                      className="flex-shrink-0 w-[30px] flex justify-center items-center rounded hover:bg-accent/50"
                       onClick={(e) => {
                         e.stopPropagation()
                         onToggleGroup(group.id, !group.is_enabled)
@@ -277,6 +267,16 @@ export function Sidebar({
                         )}
                       />
                     </button>
+
+                    {/* 拖动手柄 */}
+                    <div
+                      draggable={true}
+                      onDragStart={(e) => handleDragStart(e, group.id)}
+                      onDragEnd={handleDragEnd}
+                      className="mr-3 ml-2 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 hover:bg-accent/50 rounded w-[24px] h-[24px] flex items-center justify-center transition-opacity"
+                    >
+                      <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    </div>
 
                     {/* 分组信息 */}
                     <div className="flex-1 min-w-0">
@@ -302,7 +302,7 @@ export function Sidebar({
                       <button
                         draggable={false}
                         onDragStart={(e) => e.stopPropagation()}
-                        className="rounded hover:bg-accent w-[30px]"
+                        className="rounded hover:bg-gray-200  w-[30px] flex justify-center items-center"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleEditGroup(group)

@@ -1,0 +1,170 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build and Test on Windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+        cache: true
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Go dependencies
+      working-directory: .
+      run: go mod download
+
+    - name: Install frontend dependencies
+      working-directory: frontend
+      run: npm ci
+
+    - name: Verify Go environment
+      run: |
+        go version
+        go env
+
+    - name: Build frontend
+      working-directory: frontend
+      run: npm run build
+
+    - name: Build application (Windows)
+      run: |
+        go build -v -o wails3-hosts.exe .
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "✅ Build successful"
+          $item = Get-Item wails3-hosts.exe
+          Write-Host "Output file: $($item.Name) ($($item.Length) bytes)"
+        } else {
+          Write-Host "❌ Build failed"
+          exit 1
+        }
+      shell: pwsh
+
+    - name: Run Go tests
+      run: |
+        go test -v -race ./... -coverprofile=coverage.out -covermode=atomic
+      shell: pwsh
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Test Windows-specific functionality
+      run: |
+        Write-Host "Testing Windows-specific functionality..." -ForegroundColor Cyan
+
+        # 测试 1: 检查 hosts 文件路径
+        Write-Host "`n[Test 1] Checking hosts file path..." -ForegroundColor Yellow
+        $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
+        if (Test-Path $hostsPath) {
+          Write-Host "✅ hosts file exists: $hostsPath" -ForegroundColor Green
+        } else {
+          Write-Host "❌ hosts file not found" -ForegroundColor Red
+          exit 1
+        }
+
+        # 测试 2: 检查权限检测
+        Write-Host "`n[Test 2] Testing privilege detection..." -ForegroundColor Yellow
+        $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        if ($isAdmin) {
+          Write-Host "✅ Running with admin privileges" -ForegroundColor Green
+        } else {
+          Write-Host "ℹ️  Running without admin privileges (standard for CI)" -ForegroundColor Cyan
+        }
+
+        # 测试 3: 检查配置目录
+        Write-Host "`n[Test 3] Checking config directory..." -ForegroundColor Yellow
+        $configDir = "$env:APPDATA\hosts-manager"
+        if (Test-Path $configDir) {
+          Write-Host "✅ Config directory exists" -ForegroundColor Green
+        } else {
+          Write-Host "ℹ️  Config directory will be created on first run" -ForegroundColor Cyan
+        }
+
+        # 测试 4: 检查临时文件创建
+        Write-Host "`n[Test 4] Testing temp file creation..." -ForegroundColor Yellow
+        $tempFile = "$env:TEMP\hosts-test.tmp"
+        try {
+          "Test content" | Out-File -FilePath $tempFile -Encoding UTF8
+          if (Test-Path $tempFile) {
+            Write-Host "✅ Temp file creation successful" -ForegroundColor Green
+            Remove-Item $tempFile -Force
+          } else {
+            Write-Host "❌ Temp file creation failed" -ForegroundColor Red
+            exit 1
+          }
+        } catch {
+          Write-Host "❌ Temp file creation error: $_" -ForegroundColor Red
+          exit 1
+        }
+
+        Write-Host "`n✅ All Windows-specific tests passed!" -ForegroundColor Green
+      shell: pwsh
+
+    - name: Build UAC test tool
+      run: |
+        go build -v -o test_uac.exe ./cmd/test_uac
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "✅ UAC test tool built successfully"
+        } else {
+          Write-Host "❌ UAC test tool build failed"
+          exit 1
+        }
+      shell: pwsh
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: |
+          wails3-hosts.exe
+          test_uac.exe
+        retention-days: 7
+
+  test-windows-environment:
+    name: Test Windows Environment
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Windows test script
+      run: |
+        .\test-windows.ps1 -Verbose -SkipBuild
+      shell: pwsh
+
+    - name: System information
+      run: |
+        Write-Host "=== System Information ===" -ForegroundColor Cyan
+        Get-ComputerInfo | Select-Object OsName, WindowsVersion, OsHardwareAbstractionLayer
+        Write-Host "`n=== Go Environment ===" -ForegroundColor Cyan
+        go version
+        go env
+        Write-Host "`n=== Node.js Environment ===" -ForegroundColor Cyan
+        node --version
+        npm --version
+      shell: pwsh

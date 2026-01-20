@@ -127,7 +127,14 @@ func initializeInfrastructure() (*infrastructure, error) {
 	versionRepo := persistence.NewVersionRepository(storage)
 
 	// 初始化系统操作
-	hostsFileOp, err := system.NewHostsFileOperator()
+	// 创建平台特定的权限提升器
+	elevator, err := system.NewPrivilegeElevator()
+	if err != nil {
+		return nil, fmt.Errorf("创建权限提升器失败: %w", err)
+	}
+
+	// 创建 hosts 文件操作器，注入提升器
+	hostsFileOp, err := system.NewHostsFileOperator(elevator)
 	if err != nil {
 		return nil, fmt.Errorf("创建 hosts 文件操作器失败: %w", err)
 	}
