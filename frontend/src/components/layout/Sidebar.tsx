@@ -120,11 +120,38 @@ export function Sidebar({
     setDragOverId(null)
   }
 
-  // 点击处理（区分点击和拖动）
+  // 点击处理 - 直接选中分组
   const handleGroupClick = (e: React.MouseEvent, group: HostsGroup) => {
-    // 如果正在拖动，不触发点击
-    if (isDragging.current) {
-      isDragging.current = false
+    // 如果点击的是按钮，不触发选中
+    const target = e.target as HTMLElement
+    if (target.closest('button')) {
+      return
+    }
+
+    // 如果正在进行拖动操作，不触发点击
+    if (draggedId) {
+      return
+    }
+
+    // 直接选中分组
+    onSelectGroup(group)
+  }
+
+  // 鼠标按下记录位置
+  const handleMouseDown = (e: React.MouseEvent) => {
+    dragStartPos.current = { x: e.clientX, y: e.clientY }
+  }
+
+  // 鼠标抬起时检查是否为点击
+  const handleMouseUp = (e: React.MouseEvent, group: HostsGroup) => {
+    // 如果点击的是按钮，不触发选中
+    const target = e.target as HTMLElement
+    if (target.closest('button')) {
+      return
+    }
+
+    // 如果正在进行拖动操作，不触发点击
+    if (draggedId) {
       return
     }
 
@@ -243,6 +270,8 @@ export function Sidebar({
                     isDragOver && 'border-primary border-dashed bg-accent/50'
                   )}
                   onClick={(e) => handleGroupClick(e, group)}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={(e) => handleMouseUp(e, group)}
                   onDoubleClick={() => onDoubleClickGroup(group)}
                   onDragOver={(e) => handleDragOver(e, group.id)}
                   onDragLeave={handleDragLeave}

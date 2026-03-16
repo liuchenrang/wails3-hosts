@@ -1,6 +1,19 @@
-// +build windows
+//go:build windows
 
 package system
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
+	"time"
+	"unsafe"
+
+	"golang.org/x/sys/windows"
+)
 
 // NewPrivilegeElevator 创建平台特定的权限提升器（Windows 平台）
 // 构建标签: +build windows
@@ -8,21 +21,6 @@ package system
 func NewPrivilegeElevator() (PrivilegeElevator, error) {
 	return NewWindowsElevator()
 }
-
-import (
-	"crypto/sha256"
-	"encoding/hex"
-	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
-	"syscall"
-	"time"
-	"unsafe"
-
-	"golang.org/x/sys/windows"
-)
 
 var (
 	// ErrUACCancelled 用户取消了 UAC 提权
@@ -339,19 +337,6 @@ func (e *WindowsElevator) ExecuteAsAdmin(tmpPath string) error {
 	os.Remove(tmpPath)
 
 	return nil
-}
-
-// GetWindowsElevatorPath 获取 Windows hosts 文件路径
-// 兼容性: 动态构建路径，支持不同的 Windows 安装目录
-func getHostsFilePath() (string, error) {
-	systemRoot := os.Getenv("SystemRoot")
-	if systemRoot == "" {
-		// 默认值
-		systemRoot = `C:\Windows`
-	}
-
-	path := filepath.Join(systemRoot, "System32", "drivers", "etc", "hosts")
-	return path, nil
 }
 
 // 运行时检查
