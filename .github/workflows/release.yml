@@ -18,7 +18,7 @@ env:
 jobs:
   # ==================== macOS Build ====================
   build-macos:
-    name: Build macOS
+    name: Build macOS (${{ matrix.arch }})
     runs-on: macos-latest
     strategy:
       matrix:
@@ -40,24 +40,31 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-
       - name: Install frontend dependencies
         run: npm ci
         working-directory: frontend
 
-      - name: Build application
-        run: task darwin:build
-        env:
-          ARCH: ${{ matrix.arch }}
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
 
-      - name: Package as .app
-        run: task darwin:package
+      - name: Build application
+        run: |
+          mkdir -p bin
+          go build -tags production -trimpath -ldflags="-w -s" -o bin/${{ env.APP_NAME }} .
         env:
-          ARCH: ${{ matrix.arch }}
+          GOOS: darwin
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 1
+          MACOSX_DEPLOYMENT_TARGET: "10.15"
+
+      - name: Create .app bundle
+        run: |
+          mkdir -p bin/${{ env.APP_NAME }}.app/Contents/{MacOS,Resources}
+          cp build/darwin/icons.icns bin/${{ env.APP_NAME }}.app/Contents/Resources/ 2>/dev/null || echo "No icons.icns found"
+          cp bin/${{ env.APP_NAME }} bin/${{ env.APP_NAME }}.app/Contents/MacOS/
+          cp build/darwin/Info.plist bin/${{ env.APP_NAME }}.app/Contents/ 2>/dev/null || echo "No Info.plist found"
+          codesign --force --deep --sign - bin/${{ env.APP_NAME }}.app || echo "Codesign skipped"
 
       - name: Create ZIP archive
         run: |
@@ -73,7 +80,7 @@ jobs:
 
   # ==================== Windows Build ====================
   build-windows:
-    name: Build Windows
+    name: Build Windows (${{ matrix.arch }})
     runs-on: windows-latest
     strategy:
       matrix:
@@ -95,19 +102,23 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-
       - name: Install frontend dependencies
         run: npm ci
         working-directory: frontend
 
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
       - name: Build application
-        run: task windows:build
+        run: |
+          New-Item -ItemType Directory -Force -Path bin
+          go build -tags production -trimpath -ldflags="-w -s -H windowsgui" -o bin/${{ env.APP_NAME }}.exe .
         env:
-          ARCH: ${{ matrix.arch }}
+          GOOS: windows
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+        shell: pwsh
 
       - name: Create ZIP archive
         run: |
@@ -124,7 +135,7 @@ jobs:
 
   # ==================== Linux Build ====================
   build-linux:
-    name: Build Linux
+    name: Build Linux (${{ matrix.arch }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -146,19 +157,22 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-
       - name: Install frontend dependencies
         run: npm ci
         working-directory: frontend
 
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
       - name: Build application
-        run: task linux:build
+        run: |
+          mkdir -p bin
+          go build -tags production -trimpath -ldflags="-w -s" -o bin/${{ env.APP_NAME }} .
         env:
-          ARCH: ${{ matrix.arch }}
+          GOOS: linux
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
 
       - name: Create TAR archive
         run: |
