@@ -5,13 +5,13 @@ version: '3'
 
 # This information is used to generate the build assets.
 info:
-  companyName: "My Company" # The name of the company
-  productName: "My Product" # The name of the application
-  productIdentifier: "com.mycompany.myproduct" # The unique product identifier
-  description: "A program that does X" # The application description
-  copyright: "(c) 2025, My Company" # Copyright text
-  comments: "Some Product Comments" # Comments
-  version: "0.0.1" # The application version
+  companyName: "Hosts Manager" # The name of the company
+  productName: "Hosts Manager" # The name of the application
+  productIdentifier: "com.hostsmanager.app" # The unique product identifier
+  description: "A cross-platform hosts file management tool" # The application description
+  copyright: "(c) 2025, Hosts Manager" # Copyright text
+  comments: "Hosts file manager similar to SwitchHosts" # Comments
+  version: "1.0.0" # The application version
 
 # iOS build configuration (uncomment to customise iOS project generation)
 # Note: Keys under `ios` OVERRIDE values under `info` when set.

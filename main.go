@@ -38,7 +38,7 @@ func main() {
 	// 创建 Wails 应用
 	app := application.New(application.Options{
 		Name:        "Hosts Manager",
-		Description: "一个类似 SwitchHosts 的跨平台 hosts 文件管理工具",
+		Description: "A cross-platform hosts file management tool",
 		Services: []application.Service{
 			application.NewService(hostsHandler),
 		},
