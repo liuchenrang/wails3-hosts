@@ -19,14 +19,14 @@ jobs:
   # ==================== macOS Build ====================
   build-macos:
     name: Build macOS (${{ matrix.arch }})
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-latest
     strategy:
       matrix:
         include:
           - arch: arm64
-            runner: macos-latest
+            goarch: arm64
           - arch: amd64
-            runner: macos-13
+            goarch: amd64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,12 +55,19 @@ jobs:
       - name: Build application
         run: |
           mkdir -p bin
-          go build -tags production -trimpath -ldflags="-w -s" -o bin/${{ env.APP_NAME }} .
+          if [ "${{ matrix.arch }}" == "amd64" ]; then
+            # Cross-compile for Intel on ARM Mac
+            go build -tags production -trimpath -ldflags="-w -s" -o bin/${{ env.APP_NAME }} .
+          else
+            go build -tags production -trimpath -ldflags="-w -s" -o bin/${{ env.APP_NAME }} .
+          fi
         env:
           GOOS: darwin
-          GOARCH: ${{ matrix.arch }}
+          GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 1
           MACOSX_DEPLOYMENT_TARGET: "10.15"
+          CGO_CFLAGS: "-target ${{ matrix.arch == 'amd64' && 'x86_64-apple-macos10.15' || 'arm64-apple-macos10.15' }}"
+          CGO_LDFLAGS: "-target ${{ matrix.arch == 'amd64' && 'x86_64-apple-macos10.15' || 'arm64-apple-macos10.15' }}"
 
       - name: Create .app bundle
         run: |
