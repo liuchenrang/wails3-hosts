@@ -179,3 +179,8 @@ func (h *HostsHandler) ValidateSudoPassword(password string) (bool, string) {
 func (h *HostsHandler) IsSudoPasswordCached() bool {
 	return h.appService.IsSudoPasswordCached(context.Background())
 }
+
+// GetPlatformInfo 获取平台信息
+func (h *HostsHandler) GetPlatformInfo() *dto.PlatformInfoDTO {
+	return h.appService.GetPlatformInfo(context.Background())
+}

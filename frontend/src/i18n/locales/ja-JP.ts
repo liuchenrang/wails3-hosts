@@ -82,6 +82,8 @@ export const jaJP = {
       cached: 'パスワードキャッシュ済み ({{seconds}}秒)',
       required: 'hosts ファイルを書き込むには sudo パスワードが必要です',
       invalid: 'sudo パスワードの検証に失敗しました。パスワードが正しいか確認してください',
+      windowsUACHint: 'この操作では UAC プロンプトが表示されます。「許可」をクリックして続行してください',
+      windowsPlatformHint: 'Windows プラットフォーム、UAC プロンプトが表示されます',
     },
     // テーマ
     theme: {

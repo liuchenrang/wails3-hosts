@@ -199,7 +199,7 @@ export function MainPanel({
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col bg-background">
+    <div className="flex h-full flex-1 flex-col bg-background" data-testid="main-panel">
       {/* 头部 */}
       <div className="flex items-center justify-between border-b px-6 py-4">
         <div className="flex-1">

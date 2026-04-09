@@ -119,13 +119,23 @@ export function GetGroupByID(id) {
 }
 
 /**
+ * GetPlatformInfo 获取平台信息
+ * @returns {$CancellablePromise<dto$0.PlatformInfoDTO | null>}
+ */
+export function GetPlatformInfo() {
+    return $Call.ByID(1374397281).then(/** @type {($result: any) => any} */(($result) => {
+        return $$createType6($result);
+    }));
+}
+
+/**
  * GetVersions 获取版本历史
  * @param {number} limit
  * @returns {$CancellablePromise<dto$0.HostsVersionDTO[]>}
  */
 export function GetVersions(limit) {
     return $Call.ByID(4170854695, limit).then(/** @type {($result: any) => any} */(($result) => {
-        return $$createType6($result);
+        return $$createType8($result);
     }));
 }
 
@@ -205,5 +215,7 @@ const $$createType1 = $Create.Nullable($$createType0);
 const $$createType2 = $Create.Array($Create.Any);
 const $$createType3 = $Create.Map($Create.Any, $$createType2);
 const $$createType4 = $Create.Array($$createType0);
-const $$createType5 = dto$0.HostsVersionDTO.createFrom;
-const $$createType6 = $Create.Array($$createType5);
+const $$createType5 = dto$0.PlatformInfoDTO.createFrom;
+const $$createType6 = $Create.Nullable($$createType5);
+const $$createType7 = dto$0.HostsVersionDTO.createFrom;
+const $$createType8 = $Create.Array($$createType7);

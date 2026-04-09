@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"runtime"
 
 	"github.com/chen/wails3-hosts/internal/application/dto"
 	"github.com/chen/wails3-hosts/internal/domain/entity"
@@ -78,18 +79,32 @@ func (s *HostsApplicationService) GetAllGroups(ctx context.Context) ([]dto.Hosts
 	}
 
 	// 如果没有分组，自动创建默认分组
+	// 使用名称检查来避免并发创建多个默认分组
 	if len(groups) == 0 {
 		fmt.Println("[Service] 检测到没有分组，开始创建默认分组")
-		if err := s.createDefaultGroupWithSystemHosts(ctx); err != nil {
-			fmt.Printf("[Service] 创建默认分组失败: %v\n", err)
-			// 不阻断流程，继续返回空分组列表
-		} else {
-			// 重新加载分组列表
-			groups, err = s.hostsRepo.FindAll(ctx)
-			if err != nil {
-				return nil, fmt.Errorf("查找分组失败: %w", err)
+
+		// 先检查是否已经存在默认分组（避免并发创建）
+		exists, err := s.hostsRepo.ExistsByName(ctx, "默认分组")
+		if err != nil {
+			fmt.Printf("[Service] 检查默认分组是否存在失败: %v\n", err)
+			// 继续尝试创建
+		}
+
+		if !exists {
+			if err := s.createDefaultGroupWithSystemHosts(ctx); err != nil {
+				fmt.Printf("[Service] 创建默认分组失败: %v\n", err)
+				// 不阻断流程，继续返回空分组列表
+			} else {
+				fmt.Println("[Service] 默认分组创建成功")
 			}
-			fmt.Println("[Service] 默认分组创建成功")
+		} else {
+			fmt.Println("[Service] 默认分组已存在，跳过创建")
+		}
+
+		// 重新加载分组列表
+		groups, err = s.hostsRepo.FindAll(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("查找分组失败: %w", err)
 		}
 	}
 
@@ -317,12 +332,16 @@ func (s *HostsApplicationService) DetectConflicts(ctx context.Context) (map[stri
 
 // ApplyHosts 应用 hosts 配置到系统
 // 用例: 用户点击"应用"按钮或按 Cmd+S
-// 前置条件: 密码必须先通过 ValidateSudoPassword 验证并缓存
+// 前置条件: 在 Unix/macOS 上密码必须先通过 ValidateSudoPassword 验证并缓存
 func (s *HostsApplicationService) ApplyHosts(ctx context.Context, req dto.ApplyHostsRequest) error {
-	// 1. 检查是否有缓存的 sudo 密码
-	if !s.sudoManager.IsPasswordCached() {
-		return fmt.Errorf("需要先验证 sudo 密码，请调用 ValidateSudoPassword")
+	// 1. 检查是否需要 sudo 权限（Unix/macOS）
+	if runtime.GOOS != "windows" {
+		// Unix/macOS 平台：检查是否有缓存的 sudo 密码
+		if !s.sudoManager.IsPasswordCached() {
+			return fmt.Errorf("需要先验证 sudo 密码，请调用 ValidateSudoPassword")
+		}
 	}
+	// Windows 平台：不需要密码验证，直接继续
 
 	// 2. 生成 hosts 内容
 	content, err := s.GeneratePreview(ctx)
@@ -400,37 +419,49 @@ func (s *HostsApplicationService) RollbackToVersion(ctx context.Context, req dto
 
 	// 3. 写入目标版本内容
 	fmt.Println("[Service] 步骤3: 写入目标版本内容")
-	if req.SudoPassword != "" {
-		// 使用用户提供的密码
-		fmt.Println("[Service] 使用用户提供的密码")
 
-		// 先验证密码并让系统缓存凭证（使用 sudo -v）
-		fmt.Println("[Service] 验证密码并缓存到系统")
-		if !s.sudoManager.ValidatePassword(req.SudoPassword) {
-			fmt.Println("[Service] 密码验证失败")
-			return fmt.Errorf("sudo 密码验证失败")
-		}
-		fmt.Println("[Service] 密码验证成功，系统已缓存凭证")
-
-		// 验证成功后，直接使用 Write()（系统已经缓存了凭证）
+	// Windows 平台：不需要密码，直接写入
+	if runtime.GOOS == "windows" {
+		fmt.Println("[Service] Windows 平台，不需要密码验证")
 		if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
 			fmt.Println("[Service] 写入失败:", err.Error())
 			return fmt.Errorf("写入 hosts 文件失败: %w", err)
 		}
+		fmt.Println("[Service] 写入成功")
 	} else {
-		// 使用缓存的密码
-		fmt.Println("[Service] 使用缓存的密码")
-		// 检查是否有缓存的密码
-		if !s.sudoManager.IsPasswordCached() {
-			fmt.Println("[Service] 没有缓存的密码")
-			return fmt.Errorf("没有可用的 sudo 密码，请先验证密码")
+		// Unix/macOS 平台：需要密码验证
+		if req.SudoPassword != "" {
+			// 使用用户提供的密码
+			fmt.Println("[Service] 使用用户提供的密码")
+
+			// 先验证密码并让系统缓存凭证（使用 sudo -v）
+			fmt.Println("[Service] 验证密码并缓存到系统")
+			if !s.sudoManager.ValidatePassword(req.SudoPassword) {
+				fmt.Println("[Service] 密码验证失败")
+				return fmt.Errorf("sudo 密码验证失败")
+			}
+			fmt.Println("[Service] 密码验证成功，系统已缓存凭证")
+
+			// 验证成功后，直接使用 Write()（系统已经缓存了凭证）
+			if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
+				fmt.Println("[Service] 写入失败:", err.Error())
+				return fmt.Errorf("写入 hosts 文件失败: %w", err)
+			}
+		} else {
+			// 使用缓存的密码
+			fmt.Println("[Service] 使用缓存的密码")
+			// 检查是否有缓存的密码
+			if !s.sudoManager.IsPasswordCached() {
+				fmt.Println("[Service] 没有缓存的密码")
+				return fmt.Errorf("没有可用的 sudo 密码，请先验证密码")
+			}
+			if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
+				fmt.Println("[Service] 写入失败:", err.Error())
+				return fmt.Errorf("写入 hosts 文件失败: %w", err)
+			}
 		}
-		if err := s.hostsFileOp.Write(targetVersion.Content); err != nil {
-			fmt.Println("[Service] 写入失败:", err.Error())
-			return fmt.Errorf("写入 hosts 文件失败: %w", err)
-		}
+		fmt.Println("[Service] 写入成功")
 	}
-	fmt.Println("[Service] 写入成功")
 
 	// 4. 记录回滚操作
 	fmt.Println("[Service] 步骤4: 记录回滚操作")
@@ -479,6 +510,19 @@ func (s *HostsApplicationService) IsSudoPasswordCached(ctx context.Context) bool
 	cached := s.sudoManager.IsPasswordCached()
 	fmt.Println("[Service] IsSudoPasswordCached 检查完成", "cached:", cached)
 	return cached
+}
+
+// GetPlatformInfo 获取平台信息
+// 用例: 前端根据平台信息决定 UI 交互策略
+func (s *HostsApplicationService) GetPlatformInfo(ctx context.Context) *dto.PlatformInfoDTO {
+	elevator := s.hostsFileOp.GetPrivilegeElevator()
+
+	return &dto.PlatformInfoDTO{
+		OS:           elevator.GetOS(),
+		Arch:         elevator.GetArch(),
+		NeedsSudo:    elevator.NeedsSudo(),
+		CanCacheCred: elevator.CanCacheCredentials(),
+	}
 }
 
 // toGroupDTO 将领域实体转换为 DTO

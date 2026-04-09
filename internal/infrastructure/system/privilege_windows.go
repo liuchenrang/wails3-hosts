@@ -124,6 +124,21 @@ func (e *WindowsElevator) CanCacheCredentials() bool {
 	return false
 }
 
+// GetOS 获取操作系统名称
+func (e *WindowsElevator) GetOS() string {
+	return "windows"
+}
+
+// GetArch 获取系统架构
+func (e *WindowsElevator) GetArch() string {
+	return runtime.GOARCH
+}
+
+// NeedsSudo Windows 平台不需要 sudo 密码验证（使用 UAC）
+func (e *WindowsElevator) NeedsSudo() bool {
+	return false
+}
+
 // isAdmin 检查当前进程是否具有管理员权限
 // 实现: 检查当前进程的访问令牌是否包含管理员组 SID
 func (e *WindowsElevator) isAdmin() (bool, error) {
@@ -174,11 +189,8 @@ func (e *WindowsElevator) normalizeContent(content string) string {
 		}
 	}
 
-	// 统一换行符为 \r\n (Windows 格式)
-	// 先将 \r\n 转为 \n，再转为 \r\n
-	content = content
-	// 注意: 这里简化处理，实际需要更复杂的逻辑
-
+	// 保持原有的换行符格式
+	// 注意: hosts 文件通常使用系统默认格式，这里不做转换
 	return content
 }
 

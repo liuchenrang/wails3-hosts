@@ -14,11 +14,17 @@ interface VersionHistoryProps {
   versions: HostsVersion[]
   onRollback: (versionId: string, password?: string) => Promise<void>
   checkPasswordCache: () => Promise<boolean>
+  platformInfo?: {
+    os: string
+    arch: string
+    needsSudo: boolean
+    canCacheCred: boolean
+  } | null
 }
 
 // 版本历史组件
 // 单一职责: 显示和操作版本历史
-export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPasswordCache }: VersionHistoryProps) {
+export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPasswordCache, platformInfo }: VersionHistoryProps) {
   const { t } = useTranslation()
   const toast = useToast()
   const [rollbackVersion, setRollbackVersion] = useState<HostsVersion | null>(null)
@@ -40,13 +46,18 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
     setRealtimeCacheStatus(null)
 
     try {
-      // 实时向后端检查密码缓存状态
-      console.log('[VersionHistory] 实时检查密码缓存状态')
-      const cached = await checkPasswordCache()
-      console.log('[VersionHistory] 密码缓存状态:', cached)
-
-      // 保存实时查询结果到临时状态
-      setRealtimeCacheStatus(cached)
+      // Windows 平台不需要检查密码缓存
+      if (platformInfo && !platformInfo.needsSudo) {
+        console.log('[VersionHistory] Windows 平台，不需要密码')
+        setRealtimeCacheStatus(true)
+      } else {
+        // Unix/macOS 平台：实时向后端检查密码缓存状态
+        console.log('[VersionHistory] 实时检查密码缓存状态')
+        const cached = await checkPasswordCache()
+        console.log('[VersionHistory] 密码缓存状态:', cached)
+        // 保存实时查询结果到临时状态
+        setRealtimeCacheStatus(cached)
+      }
 
       // 显示确认对话框
       console.log('[VersionHistory] 显示确认对话框')
@@ -109,6 +120,14 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
   // 刷新密码缓存状态的辅助函数
   const refreshCacheStatus = async () => {
     console.log('[VersionHistory] 刷新密码缓存状态')
+
+    // Windows 平台不需要检查密码缓存
+    if (platformInfo && !platformInfo.needsSudo) {
+      console.log('[VersionHistory] Windows 平台，设置缓存状态为 true')
+      setRealtimeCacheStatus(true)
+      return
+    }
+
     setIsCheckingRealtimeCache(true)
     try {
       const cached = await checkPasswordCache()
@@ -156,7 +175,11 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
               </div>
             ) : realtimeCacheStatus === true ? (
               <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                <span>✓ 密码已缓存,可以直接回滚</span>
+                <span>
+                  {platformInfo && !platformInfo.needsSudo
+                    ? '✓ Windows 平台，将弹出 UAC 提示'
+                    : '✓ 密码已缓存,可以直接回滚'}
+                </span>
               </div>
             ) : realtimeCacheStatus === false ? (
               <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
@@ -261,7 +284,8 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
                 disabled={
                   isRollingBack ||
                   isCheckingRealtimeCache ||
-                  (!sudoPassword && realtimeCacheStatus === false) ||
+                  // Unix/macOS 平台：密码未缓存且未输入密码时禁用
+                  (platformInfo?.needsSudo !== false && !sudoPassword && realtimeCacheStatus === false) ||
                   (realtimeCacheStatus === null)
                 }
               >
@@ -286,8 +310,8 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
               </div>
             )}
 
-            {/* 密码未缓存时显示输入框 */}
-            {!isCheckingRealtimeCache && realtimeCacheStatus === false && (
+            {/* 密码未缓存时显示输入框（仅 Unix/macOS） */}
+            {!isCheckingRealtimeCache && realtimeCacheStatus === false && (!platformInfo || platformInfo.needsSudo) && (
               <div>
                 <label className="block text-sm font-medium">{t('sudo.password')}</label>
                 <Input
@@ -307,11 +331,13 @@ export function VersionHistory({ isOpen, onClose, versions, onRollback, checkPas
               </div>
             )}
 
-            {/* 密码已缓存时显示提示 */}
+            {/* Windows 平台或密码已缓存时显示提示 */}
             {!isCheckingRealtimeCache && realtimeCacheStatus === true && (
               <div className="rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 p-3">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  ✓ {t('sudo.passwordCachedHint')}
+                  {platformInfo && !platformInfo.needsSudo
+                    ? '✓ 此操作将弹出 UAC 提示，请点击"允许"继续'
+                    : '✓ ' + t('sudo.passwordCachedHint')}
                 </p>
               </div>
             )}

@@ -31,3 +31,11 @@ type ValidateSudoResponse struct {
 	Valid bool   `json:"valid"`
 	Error string `json:"error,omitempty"`
 }
+
+// PlatformInfoDTO 平台信息数据传输对象
+type PlatformInfoDTO struct {
+	OS           string `json:"os"`             // 操作系统: "windows", "darwin", "linux"
+	Arch         string `json:"arch"`           // 架构: "amd64", "arm64"
+	NeedsSudo    bool   `json:"needsSudo"`      // 是否需要 sudo 密码验证
+	CanCacheCred bool   `json:"canCacheCred"`   // 是否可以缓存凭据
+}

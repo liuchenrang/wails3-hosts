@@ -6,5 +6,6 @@ export {
     BatchUpdateEntryRequest,
     HostsEntryDTO,
     HostsGroupDTO,
-    HostsVersionDTO
+    HostsVersionDTO,
+    PlatformInfoDTO
 } from "./models.js";

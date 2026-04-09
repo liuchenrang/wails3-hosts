@@ -69,12 +69,24 @@ function App() {
   const [showAbout, setShowAbout] = useState(false)
   const [aboutInfo, setAboutInfo] = useState<{ version?: string; email?: string }>({})
   const [isCheckingPasswordCache, setIsCheckingPasswordCache] = useState(false)
+  const [platformInfo, setPlatformInfo] = useState<{
+    os: string
+    arch: string
+    needsSudo: boolean
+    canCacheCred: boolean
+  } | null>(null)
 
   const selectedGroup = groups.find(g => g.id === selectedGroupId) || null
 
   // 快捷键: Cmd+S / Ctrl+S 保存
   const handleApply = useCallback(async () => {
-    // 检查密码是否已缓存
+    // Windows 平台不需要密码验证，直接应用
+    if (platformInfo && !platformInfo.needsSudo) {
+      await applyHostsWithoutPassword()
+      return
+    }
+
+    // Unix/macOS 平台检查密码是否已缓存
     setIsCheckingPasswordCache(true)
     try {
       const cached = await hostsApi.isSudoPasswordCached()
@@ -93,7 +105,7 @@ function App() {
     } finally {
       setIsCheckingPasswordCache(false)
     }
-  }, [])
+  }, [platformInfo])
 
   useHotkey('s', handleApply)
 
@@ -101,6 +113,7 @@ function App() {
   useEffect(() => {
     loadGroups()
     loadVersions()
+    loadPlatformInfo()
 
     // 监听来自 Wails 后端的事件
     try {
@@ -120,6 +133,17 @@ function App() {
       console.warn('Wails事件监听注册失败:', error)
     }
   }, [])
+
+  // 加载平台信息
+  const loadPlatformInfo = async () => {
+    try {
+      const info = await hostsApi.getPlatformInfo()
+      console.log('[App] 平台信息:', info)
+      setPlatformInfo(info)
+    } catch (error) {
+      console.error('Failed to load platform info:', error)
+    }
+  }
 
   // 当分组加载完成后,如果没有选中的分组或上次选中的分组不存在,则选择第一个分组
   useEffect(() => {
@@ -300,15 +324,20 @@ function App() {
   const handleRollback = async (versionId: string, password?: string) => {
     console.log('[App] handleRollback 开始', { versionId, hasPassword: password !== undefined })
     try {
-      // 如果没有提供密码，说明使用缓存的密码
-      if (password === undefined) {
-        console.log('[App] 使用缓存的sudo密码')
-        // 后端会自动使用缓存的密码
+      // Windows 平台不需要密码，传递空字符串
+      // Unix/macOS 平台：如果没有提供密码，使用缓存的密码
+      if (platformInfo && !platformInfo.needsSudo) {
+        console.log('[App] Windows 平台，不需要密码')
+        await hostsApi.rollbackToVersion(versionId, '')
+      } else {
+        // Unix/macOS 平台
+        if (password === undefined) {
+          console.log('[App] 使用缓存的sudo密码')
+          // 后端会自动使用缓存的密码
+        }
+        // 注意：如果password是undefined,传递空字符串;否则传递实际密码
+        await hostsApi.rollbackToVersion(versionId, password ?? '')
       }
-
-      console.log('[App] 调用 rollbackToVersion API 前')
-      // 注意：如果password是undefined,传递空字符串;否则传递实际密码
-      await hostsApi.rollbackToVersion(versionId, password ?? '')
       console.log('[App] rollbackToVersion API 成功返回')
 
       console.log('[App] 开始 loadVersions')
@@ -331,6 +360,13 @@ function App() {
   // 检查密码缓存状态的函数(供VersionHistory组件使用)
   const handleCheckPasswordCache = async (): Promise<boolean> => {
     console.log('[App] handleCheckPasswordCache 开始检查')
+
+    // Windows 平台不需要密码缓存
+    if (platformInfo && !platformInfo.needsSudo) {
+      console.log('[App] Windows 平台，不需要密码缓存')
+      return true // 返回 true 表示不需要密码验证
+    }
+
     try {
       const cached = await hostsApi.isSudoPasswordCached()
       console.log('[App] handleCheckPasswordCache 检查结果', { cached })
@@ -541,6 +577,7 @@ function App() {
           versions={versions}
           onRollback={handleRollback}
           checkPasswordCache={handleCheckPasswordCache}
+          platformInfo={platformInfo}
         />
 
         {/* 关于我们对话框 */}

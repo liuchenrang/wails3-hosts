@@ -92,6 +92,8 @@ export const zhCN = {
       cached: '密码已缓存 ({{seconds}}秒)',
       required: '需要 sudo 密码才能写入 hosts 文件',
       invalid: 'sudo 密码验证失败，请检查密码是否正确',
+      windowsUACHint: '此操作将弹出 UAC 提示，请点击"允许"继续',
+      windowsPlatformHint: 'Windows 平台，将弹出 UAC 提示',
     },
     // 主题
     theme: {

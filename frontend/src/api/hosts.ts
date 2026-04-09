@@ -141,4 +141,21 @@ export const hostsApi = {
     console.log('[hostsApi] isSudoPasswordCached 结果', { cached: result })
     return result
   },
+
+  async getPlatformInfo(): Promise<{
+    os: string
+    arch: string
+    needsSudo: boolean
+    canCacheCred: boolean
+  }> {
+    console.log('[hostsApi] getPlatformInfo 调用')
+    const result = await HostsHandler.GetPlatformInfo()
+    console.log('[hostsApi] getPlatformInfo 结果', result)
+    return result as unknown as {
+      os: string
+      arch: string
+      needsSudo: boolean
+      canCacheCred: boolean
+    }
+  },
 }

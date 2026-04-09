@@ -82,6 +82,8 @@ export const enUS = {
       cached: 'Password cached ({{seconds}}s)',
       required: 'Sudo password required to write hosts file',
       invalid: 'Sudo password validation failed, please check if password is correct',
+      windowsUACHint: 'This action will show a UAC prompt, click "Allow" to continue',
+      windowsPlatformHint: 'Windows platform, UAC prompt will be shown',
     },
     // Theme
     theme: {

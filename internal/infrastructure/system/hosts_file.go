@@ -64,6 +64,14 @@ func (o *HostsFileOperator) CanCacheCredentials() bool {
 	return o.elevator.CanCacheCredentials()
 }
 
+// GetPrivilegeElevator 获取权限提升器实例
+// 实现: 返回内部提升器接口
+//
+// 用途: 应用服务层需要访问提升器获取平台信息
+func (o *HostsFileOperator) GetPrivilegeElevator() PrivilegeElevator {
+	return o.elevator
+}
+
 // getHostsFilePath 获取系统 hosts 文件路径
 // KISS: 根据操作系统返回对应的路径
 func getHostsFilePath() (string, error) {

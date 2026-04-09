@@ -2,6 +2,10 @@
 
 package system
 
+import (
+	"runtime"
+)
+
 // UnixElevator Unix/Linux/macOS 权限提升器
 // 单一职责: 使用 sudo 命令进行权限提升
 //
@@ -52,5 +56,20 @@ func (e *UnixElevator) Execute(content string) error {
 //
 // 注意: sudo 系统默认缓存 5 分钟，可由系统配置调整
 func (e *UnixElevator) CanCacheCredentials() bool {
+	return true
+}
+
+// GetOS 获取操作系统名称
+func (e *UnixElevator) GetOS() string {
+	return runtime.GOOS
+}
+
+// GetArch 获取系统架构
+func (e *UnixElevator) GetArch() string {
+	return runtime.GOARCH
+}
+
+// NeedsSudo Unix 平台需要 sudo 密码验证
+func (e *UnixElevator) NeedsSudo() bool {
 	return true
 }

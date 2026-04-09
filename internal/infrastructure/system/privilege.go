@@ -54,4 +54,23 @@ type PrivilegeElevator interface {
 	// - Unix 平台可以避免重复输入密码
 	// - Windows 平台每次都会弹出 UAC 提示
 	CanCacheCredentials() bool
+
+	// GetOS 获取操作系统名称
+	// 返回:
+	//   - string: 操作系统标识 ("windows", "darwin", "linux")
+	GetOS() string
+
+	// GetArch 获取系统架构
+	// 返回:
+	//   - string: 架构标识 ("amd64", "arm64", etc.)
+	GetArch() string
+
+	// NeedsSudo 是否需要 sudo 密码验证
+	// 返回:
+	//   - bool: 是否需要密码验证
+	//
+	// 平台差异:
+	// - Unix: true (需要 sudo 密码)
+	// - Windows: false (使用 UAC，不需要密码)
+	NeedsSudo() bool
 }

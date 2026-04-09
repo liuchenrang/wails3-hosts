@@ -270,6 +270,62 @@ export class HostsVersionDTO {
     }
 }
 
+/**
+ * PlatformInfoDTO 平台信息数据传输对象
+ */
+export class PlatformInfoDTO {
+    /**
+     * Creates a new PlatformInfoDTO instance.
+     * @param {Partial<PlatformInfoDTO>} [$$source = {}] - The source object to create the PlatformInfoDTO.
+     */
+    constructor($$source = {}) {
+        if (!("os" in $$source)) {
+            /**
+             * 操作系统: "windows", "darwin", "linux"
+             * @member
+             * @type {string}
+             */
+            this["os"] = "";
+        }
+        if (!("arch" in $$source)) {
+            /**
+             * 架构: "amd64", "arm64"
+             * @member
+             * @type {string}
+             */
+            this["arch"] = "";
+        }
+        if (!("needsSudo" in $$source)) {
+            /**
+             * 是否需要 sudo 密码验证
+             * @member
+             * @type {boolean}
+             */
+            this["needsSudo"] = false;
+        }
+        if (!("canCacheCred" in $$source)) {
+            /**
+             * 是否可以缓存凭据
+             * @member
+             * @type {boolean}
+             */
+            this["canCacheCred"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PlatformInfoDTO instance from a string or object.
+     * @param {any} [$$source = {}]
+     * @returns {PlatformInfoDTO}
+     */
+    static createFrom($$source = {}) {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new PlatformInfoDTO(/** @type {Partial<PlatformInfoDTO>} */($$parsedSource));
+    }
+}
+
 // Private type creation functions
 const $$createType0 = HostsEntryDTO.createFrom;
 const $$createType1 = $Create.Array($$createType0);

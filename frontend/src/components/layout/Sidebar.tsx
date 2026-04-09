@@ -155,16 +155,24 @@ export function Sidebar({
       return
     }
 
-    // 计算鼠标移动距离
-    const moveDistance = Math.sqrt(
-      Math.pow(e.clientX - dragStartPos.current.x, 2) +
-      Math.pow(e.clientY - dragStartPos.current.y, 2)
-    )
+    // 检查是否有有效的拖动起始位置
+    const hasValidDragStart = dragStartPos.current.x !== 0 || dragStartPos.current.y !== 0
 
-    // 如果移动距离小于 5px，视为点击
-    if (moveDistance < 5) {
-      onSelectGroup(group)
+    // 如果有有效的拖动起始位置，计算鼠标移动距离
+    if (hasValidDragStart) {
+      const moveDistance = Math.sqrt(
+        Math.pow(e.clientX - dragStartPos.current.x, 2) +
+        Math.pow(e.clientY - dragStartPos.current.y, 2)
+      )
+
+      // 如果移动距离大于 5px，视为拖动，不触发点击
+      if (moveDistance >= 5) {
+        return
+      }
     }
+
+    // 触发选择分组
+    onSelectGroup(group)
   }
 
   const handleCreateGroup = () => {
@@ -223,7 +231,7 @@ export function Sidebar({
   }
 
   return (
-    <div className="flex h-full w-80 flex-shrink-0 flex-col border-r">
+    <div className="flex h-full w-80 flex-shrink-0 flex-col border-r" data-testid="sidebar">
       {/* 头部 */}
       <div className="border-b bg-card px-4 py-3">
         <h2 className="text-base font-semibold">{t('sidebar.groups')}</h2>
@@ -260,6 +268,7 @@ export function Sidebar({
               return (
                 <div
                   key={group.id}
+                  data-testid={`group-item-${group.id}`}
                   className={cn(
                     'group relative rounded-lg border transition-all cursor-pointer group-item',
                     isSelected
