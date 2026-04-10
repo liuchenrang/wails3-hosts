@@ -81,7 +81,7 @@ export function DeleteGroup(id) {
 
 /**
  * DetectConflicts 检测配置冲突
- * @returns {$CancellablePromise<{ [_: string]: string[] }>}
+ * @returns {$CancellablePromise<{ [_ in string]?: string[] }>}
  */
 export function DetectConflicts() {
     return $Call.ByID(2012154560).then(/** @type {($result: any) => any} */(($result) => {
