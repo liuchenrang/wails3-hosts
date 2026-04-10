@@ -125,6 +125,7 @@ export const zhCN = {
       version: '版本',
       email: '联系邮箱',
       description: '一个简单高效的 hosts 文件管理工具',
+      website: '访问官网',
     },
   },
 }
