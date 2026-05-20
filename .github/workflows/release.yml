@@ -121,6 +121,12 @@ jobs:
         run: npm run build
         working-directory: frontend
 
+      - name: Embed Windows icon and version info
+        run: |
+          go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+          goversioninfo -icon=build/windows/icon.ico -manifest=build/windows/wails.exe.manifest -o resource.syso build/windows/info.json
+        shell: pwsh
+
       - name: Build application
         run: |
           New-Item -ItemType Directory -Force -Path bin
@@ -131,11 +137,59 @@ jobs:
           CGO_ENABLED: 0
         shell: pwsh
 
+      - name: Package with NSIS installer
+        run: |
+          choco install nsis -y --no-progress
+          $version = if ("${{ github.ref_name }}" -match "^v(.+)$") { $matches[1] } else { "1.0.5" }
+          $nsisScript = @"
+          !define APP_NAME "Hosts Manager"
+          !define APP_VERSION "$version"
+          !define APP_EXE "hosts-manager.exe"
+          !define OUT_FILE "hosts-manager-windows-amd64-setup.exe"
+          OutFile "..\$\{OUT_FILE}"
+          InstallDir "`$PROGRAMFILES64\Hosts Manager"
+          RequestExecutionLevel admin
+          Page directory
+          Page instfiles
+          Section
+            SetOutPath `$INSTDIR
+            File "hosts-manager.exe"
+            CreateShortcut "`$DESKTOP\Hosts Manager.lnk" "`$INSTDIR\hosts-manager.exe"
+            CreateDirectory "`$SMPROGRAMS\Hosts Manager"
+            CreateShortcut "`$SMPROGRAMS\Hosts Manager\Hosts Manager.lnk" "`$INSTDIR\hosts-manager.exe"
+            WriteUninstaller "`$INSTDIR\uninstall.exe"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HostsManager" "DisplayName" "Hosts Manager"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HostsManager" "UninstallString" "`$INSTDIR\uninstall.exe"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HostsManager" "DisplayVersion" "$version"
+            WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HostsManager" "Publisher" "liuchenrang"
+          SectionEnd
+          Section "Uninstall"
+            Delete "`$INSTDIR\hosts-manager.exe"
+            Delete "`$INSTDIR\uninstall.exe"
+            Delete "`$DESKTOP\Hosts Manager.lnk"
+            Delete "`$SMPROGRAMS\Hosts Manager\Hosts Manager.lnk"
+            RMDir "`$SMPROGRAMS\Hosts Manager"
+            RMDir "`$INSTDIR"
+            DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\HostsManager"
+          SectionEnd
+          "@
+          Set-Content -Path "bin\installer.nsi" -Value $nsisScript -Encoding UTF8
+          cd bin
+          makensis installer.nsi
+        shell: pwsh
+
       - name: Create ZIP archive
         run: |
           cd bin
           Compress-Archive -Path ${{ env.APP_NAME }}.exe -DestinationPath ${{ env.APP_NAME }}-windows-${{ matrix.arch }}.zip
         shell: pwsh
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.arch }}-setup
+          path: bin/${{ env.APP_NAME }}-windows-${{ matrix.arch }}-setup.exe
+          retention-days: 30
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
