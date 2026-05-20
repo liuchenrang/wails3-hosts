@@ -66,15 +66,32 @@ func main() {
 		app.Event.Emit("show-version-history")
 	})
 
+	// 创建应用菜单 - 关于
+	appMenu := application.NewAppMenu()
+	aboutItem := application.NewMenuItem("关于 Hosts Manager v" + getBuildInfo().version)
+	aboutItem.OnClick(func(_ *application.Context) {
+		// 触发前端显示关于对话框
+		app.Event.Emit("show-about-dialog", map[string]interface{}{
+			"name":    getBuildInfo().appName,
+			"version": getBuildInfo().version,
+			"website": getBuildInfo().website,
+		})
+	})
+
 	// 设置应用菜单
 	app.Menu.SetApplicationMenu(application.NewMenuFromItems(
-		application.NewAppMenu(),
+		appMenu,
 		application.NewEditMenu(),
 		application.NewSubmenu("视图", application.NewMenuFromItems(
 			versionHistoryMenu,
 		)),
 		application.NewSubmenu("帮助", application.NewMenuFromItems(
-			aboutMenu,
+			aboutItem,
+			application.NewMenuItem("在线工具").OnClick(func(_ *application.Context) {
+				if err := app.Browser.OpenURL(getBuildInfo().website); err != nil {
+					log.Printf("打开网页失败: %v", err)
+				}
+			}),
 		)),
 	))
 
@@ -95,6 +112,24 @@ func main() {
 	// 运行应用
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+// buildInfo 构建信息常量
+type buildInfo struct {
+	appName   string
+	version   string
+	website   string
+	introText string
+}
+
+// getBuildInfo 获取构建信息
+func getBuildInfo() buildInfo {
+	return buildInfo{
+		appName:   "Hosts Manager",
+		version:   "1.0.5",
+		website:   "https://www.haogongjua.cn/",
+		introText: "跨平台 hosts 文件管理工具",
 	}
 }
 

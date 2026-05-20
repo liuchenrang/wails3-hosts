@@ -7,22 +7,23 @@ import { Button } from './Button'
 interface AboutDialogProps {
   isOpen: boolean
   onClose: () => void
+  name?: string
   version?: string
-  email?: string
+  website?: string
 }
 
-const WEBSITE_URL = 'https://www.haogongjua.cn/tool/wails3-hosts-manager'
+const WEBSITE_URL = 'https://www.haogongjua.cn/'
 
-export function AboutDialog({ isOpen, onClose, version, email }: AboutDialogProps) {
+export function AboutDialog({ isOpen, onClose, name, version, website }: AboutDialogProps) {
   const { t } = useTranslation()
+  const targetUrl = website || WEBSITE_URL
 
   const handleOpenWebsite = async () => {
     try {
-      await Browser.OpenURL(WEBSITE_URL)
+      await Browser.OpenURL(targetUrl)
     } catch (error) {
       console.error('Failed to open URL:', error)
-      // 失败时使用 window.open 作为后备方案
-      window.open(WEBSITE_URL, '_blank')
+      window.open(targetUrl, '_blank')
     }
   }
 
@@ -38,7 +39,7 @@ export function AboutDialog({ isOpen, onClose, version, email }: AboutDialogProp
       <div className="space-y-6 py-4">
         {/* 应用信息 */}
         <div className="text-center">
-          <h2 className="text-2xl font-bold">{t('app.title')}</h2>
+          <h2 className="text-2xl font-bold">{name || t('app.title')}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t('about.description')}</p>
         </div>
 
@@ -50,13 +51,8 @@ export function AboutDialog({ isOpen, onClose, version, email }: AboutDialogProp
               <span className="text-sm font-mono font-semibold">{version || '1.0.0'}</span>
             </div>
             <div className="flex items-center justify-between pt-1">
-              <span className="text-sm font-medium text-muted-foreground">{t('about.email')}</span>
-              <a
-                href={`mailto:${email || 'support@hostsmanager.com'}`}
-                className="text-sm font-mono text-primary hover:underline"
-              >
-                {email || 'support@hostsmanager.com'}
-              </a>
+              <span className="text-sm font-medium text-muted-foreground">{t('about.website')}</span>
+              <span className="text-sm font-mono text-primary">{targetUrl}</span>
             </div>
           </div>
         </div>
@@ -75,7 +71,7 @@ export function AboutDialog({ isOpen, onClose, version, email }: AboutDialogProp
             className="gap-2"
           >
             <ExternalLink className="h-4 w-4" />
-            {t('about.website')}
+            {t('about.website')} - 浩工聚
           </Button>
         </div>
       </div>

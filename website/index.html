@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hosts Manager - 跨平台 hosts 文件管理工具</title>
+  <meta name="description" content="Hosts Manager 是一款免费开源的跨平台 hosts 文件管理工具，支持 macOS、Windows、Linux，分组管理、版本历史、快捷键操作。">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',
+            secondary: '#7C3AED',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .gradient-bg { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #6D28D9 100%); }
+    .gradient-text { background: linear-gradient(135deg, #4F46E5, #7C3AED); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15); }
+    .screenshot-shadow { box-shadow: 0 25px 60px rgba(0,0,0,0.3), 0 10px 20px rgba(0,0,0,0.2); }
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+
+<!-- 导航栏 -->
+<nav class="sticky top-0 z-50 nav-blur bg-white/80 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5">
+      <img src="assets/icon.svg" alt="Hosts Manager" class="w-8 h-8">
+      <span class="font-bold text-lg text-gray-900">Hosts Manager</span>
+    </a>
+    <div class="hidden sm:flex items-center gap-6 text-sm text-gray-600">
+      <a href="#features" class="hover:text-indigo-600 transition-colors">功能</a>
+      <a href="#screenshots" class="hover:text-indigo-600 transition-colors">截图</a>
+      <a href="#download" class="hover:text-indigo-600 transition-colors">下载</a>
+      <a href="https://github.com/liuchenrang/wails3-hosts" target="_blank"
+         class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 text-white hover:bg-gray-700 transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+    <!-- 移动端下载按钮 -->
+    <a href="#download" class="sm:hidden px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm font-medium">下载</a>
+  </div>
+</nav>
+
+<!-- Hero 区 -->
+<section class="gradient-bg text-white overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-0 text-center">
+    <!-- 徽章 -->
+    <div class="flex flex-wrap justify-center gap-2 mb-6">
+      <span class="px-3 py-1 rounded-full bg-white/20 text-sm font-medium backdrop-blur-sm">MIT 开源</span>
+      <span class="px-3 py-1 rounded-full bg-white/20 text-sm font-medium backdrop-blur-sm">永久免费</span>
+      <span class="px-3 py-1 rounded-full bg-white/20 text-sm font-medium backdrop-blur-sm">v1.0.5</span>
+    </div>
+    <!-- 主标题 -->
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-4">
+      告别手动编辑<br class="sm:hidden"> <span class="text-yellow-300">/etc/hosts</span>
+    </h1>
+    <!-- 副标题 -->
+    <p class="text-lg sm:text-xl text-indigo-100 max-w-2xl mx-auto mb-8">
+      Hosts Manager — 跨平台 hosts 文件管理工具<br>
+      支持 macOS · Windows · Linux，分组管理，一键应用
+    </p>
+    <!-- CTA 按钮 -->
+    <div class="flex flex-col sm:flex-row justify-center gap-3 mb-12">
+      <a href="#download"
+         class="px-8 py-3.5 rounded-xl bg-white text-indigo-700 font-bold text-lg hover:bg-indigo-50 transition-colors shadow-lg">
+        立即下载
+      </a>
+      <a href="https://github.com/liuchenrang/wails3-hosts" target="_blank"
+         class="px-8 py-3.5 rounded-xl bg-white/15 text-white font-semibold text-lg hover:bg-white/25 transition-colors border border-white/30">
+        查看 GitHub →
+      </a>
+    </div>
+    <!-- 截图 -->
+    <div class="relative max-w-4xl mx-auto">
+      <!-- macOS 窗口顶栏装饰 -->
+      <div class="bg-gray-800 rounded-t-2xl px-4 py-3 flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+        <span class="text-gray-400 text-sm mx-auto">Hosts Manager</span>
+      </div>
+      <img src="assets/screenshot-main.png" alt="Hosts Manager 主界面"
+           class="w-full rounded-b-2xl screenshot-shadow">
+    </div>
+  </div>
+</section>
+
+<!-- 功能特性 -->
+<section id="features" class="py-20 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">强大功能，简单易用</h2>
+      <p class="text-gray-500 text-lg">专为开发者打造，告别繁琐的 hosts 管理</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- 分组管理 -->
+      <div class="bg-white rounded-2xl p-6 card-hover border border-gray-100">
+        <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">分组管理</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">按项目或环境创建 hosts 分组，支持一键启用/禁用整组，多环境切换轻松自如。</p>
+      </div>
+
+      <!-- 条目管理 -->
+      <div class="bg-white rounded-2xl p-6 card-hover border border-gray-100">
+        <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">条目管理</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">可视化添加、编辑、删除 hosts 条目，填写 IP + 主机名 + 注释，告别手动敲命令。</p>
+      </div>
+
+      <!-- 快捷键 -->
+      <div class="bg-white rounded-2xl p-6 card-hover border border-gray-100">
+        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">快捷键操作</h3>
+        <p class="text-gray-500 text-sm leading-relaxed"><kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Cmd+S</kbd> (Mac) / <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Ctrl+S</kbd> (Win) 快速应用配置，效率翻倍。</p>
+      </div>
+
+      <!-- 版本历史 -->
+      <div class="bg-white rounded-2xl p-6 card-hover border border-gray-100">
+        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">版本历史</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">自动保存每次修改的历史版本，误操作一键回滚，再也不怕改错配置。</p>
+      </div>
+
+      <!-- 多语言 -->
+      <div class="bg-white rounded-2xl p-6 card-hover border border-gray-100">
+        <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">多语言支持</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">内置中文、英文、日文，根据系统语言自动选择，国际化开发团队也能轻松使用。</p>
+      </div>
+
+      <!-- 主题切换 -->
+      <div class="bg-white rounded-2xl p-6 card-hover border border-gray-100">
+        <div class="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">明暗主题</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">支持明亮和暗色两种主题，深夜 coding 也不刺眼，护眼舒适。</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 截图展示 -->
+<section id="screenshots" class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">真实界面预览</h2>
+      <p class="text-gray-500 text-lg">简洁直观，开箱即用</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <div class="bg-gray-800 rounded-t-xl px-4 py-2.5 flex items-center gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+        </div>
+        <img src="assets/screenshot-main.png" alt="主界面" class="w-full rounded-b-xl shadow-2xl">
+        <p class="text-center text-sm text-gray-400 mt-3">直观的分组管理主界面</p>
+      </div>
+      <div>
+        <div class="bg-gray-800 rounded-t-xl px-4 py-2.5 flex items-center gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+        </div>
+        <img src="assets/screenshot-history.png" alt="版本历史" class="w-full rounded-b-xl shadow-2xl">
+        <p class="text-center text-sm text-gray-400 mt-3">版本历史，一键回滚</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 好工具啊导流横幅 -->
+<section class="py-12 bg-gradient-to-r from-blue-50 to-indigo-50">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="bg-white rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-sm border border-indigo-100">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center flex-shrink-0 text-2xl">
+        🔧
+      </div>
+      <div class="flex-1 text-center sm:text-left">
+        <h3 class="text-lg font-bold text-gray-900 mb-1">发现更多实用工具</h3>
+        <p class="text-gray-500 text-sm">
+          <strong class="text-indigo-600">好工具啊</strong> 收录了数百款高质量在线工具，Hosts Manager 也在其中。开发必备工具一站搜齐。
+        </p>
+      </div>
+      <a href="https://www.haogongjua.cn" target="_blank"
+         class="flex-shrink-0 px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors whitespace-nowrap">
+        前往好工具啊 →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 下载区 -->
+<section id="download" class="py-20 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">免费下载 · 立即使用</h2>
+      <p class="text-gray-500 text-lg">MIT 开源许可，永久免费，当前版本 <span class="font-mono font-semibold text-indigo-600">v1.0.5</span></p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+
+      <!-- macOS Apple Silicon -->
+      <div class="bg-white rounded-2xl p-6 text-center card-hover border border-gray-100">
+        <div class="mb-4">
+          <svg class="w-12 h-12 mx-auto text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+        </div>
+        <h3 class="font-bold text-gray-900 mb-1">macOS</h3>
+        <p class="text-sm text-gray-400 mb-4">Apple Silicon (M1/M2/M3)</p>
+        <a href="https://github.com/liuchenrang/wails3-hosts/releases/latest" target="_blank"
+           class="block w-full py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors">
+          下载 .dmg
+        </a>
+      </div>
+
+      <!-- macOS Intel -->
+      <div class="bg-white rounded-2xl p-6 text-center card-hover border border-gray-100">
+        <div class="mb-4">
+          <svg class="w-12 h-12 mx-auto text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+        </div>
+        <h3 class="font-bold text-gray-900 mb-1">macOS</h3>
+        <p class="text-sm text-gray-400 mb-4">Intel 芯片</p>
+        <a href="https://github.com/liuchenrang/wails3-hosts/releases/latest" target="_blank"
+           class="block w-full py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors">
+          下载 .dmg
+        </a>
+      </div>
+
+      <!-- Windows -->
+      <div class="bg-white rounded-2xl p-6 text-center card-hover border border-gray-100 relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span class="px-3 py-1 rounded-full bg-indigo-600 text-white text-xs font-semibold">最多人用</span>
+        </div>
+        <div class="mb-4">
+          <svg class="w-12 h-12 mx-auto text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+          </svg>
+        </div>
+        <h3 class="font-bold text-gray-900 mb-1">Windows</h3>
+        <p class="text-sm text-gray-400 mb-4">Windows 10 / 11 x64</p>
+        <a href="https://github.com/liuchenrang/wails3-hosts/releases/latest" target="_blank"
+           class="block w-full py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
+          下载 .exe
+        </a>
+      </div>
+
+    </div>
+
+    <!-- 查看所有版本 -->
+    <div class="text-center mt-8">
+      <a href="https://github.com/liuchenrang/wails3-hosts/releases" target="_blank"
+         class="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-colors">
+        查看全部历史版本 →
+      </a>
+    </div>
+
+    <!-- 技术徽章 -->
+    <div class="flex flex-wrap justify-center gap-2 mt-10">
+      <span class="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-mono">Go 1.24</span>
+      <span class="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-mono">Wails v3</span>
+      <span class="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-mono">React 18</span>
+      <span class="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-mono">Tailwind CSS</span>
+      <span class="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-mono">MIT License</span>
+    </div>
+  </div>
+</section>
+
+<!-- 页脚 -->
+<footer class="bg-gray-900 text-gray-400 py-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <img src="assets/icon.svg" alt="logo" class="w-6 h-6 opacity-70">
+        <span class="text-sm">© 2026 Hosts Manager · MIT License</span>
+      </div>
+      <div class="flex items-center gap-6 text-sm">
+        <a href="https://github.com/liuchenrang/wails3-hosts" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+        <a href="https://www.haogongjua.cn" target="_blank" class="hover:text-white transition-colors">好工具啊</a>
+        <a href="https://github.com/oldj/SwitchHosts" target="_blank" class="hover:text-white transition-colors text-xs opacity-60">灵感来源: SwitchHosts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
