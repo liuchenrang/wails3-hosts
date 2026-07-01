@@ -18,6 +18,11 @@ import (
 var assets embed.FS
 
 func main() {
+	// Windows UAC 提权后的管理员子进程：仅写入 hosts 文件后退出，不启动 GUI
+	if system.HandleAdminMode() {
+		return
+	}
+
 	// 初始化基础设施层
 	infra, err := initializeInfrastructure()
 	if err != nil {
@@ -127,7 +132,7 @@ type buildInfo struct {
 func getBuildInfo() buildInfo {
 	return buildInfo{
 		appName:   "Hosts Manager",
-		version:   "1.0.5",
+		version:   "1.1.4",
 		website:   "https://www.haogongjua.cn/",
 		introText: "跨平台 hosts 文件管理工具",
 	}

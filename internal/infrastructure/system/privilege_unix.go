@@ -73,3 +73,9 @@ func (e *UnixElevator) GetArch() string {
 func (e *UnixElevator) NeedsSudo() bool {
 	return true
 }
+
+// HandleAdminMode 非 Windows 平台无管理员子进程模式，始终返回 false
+// 对应 Windows 平台的 HandleAdminMode，供 main.go 无条件调用
+func HandleAdminMode() bool {
+	return false
+}
