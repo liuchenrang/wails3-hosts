@@ -1,0 +1,40 @@
+[    1997ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-PJEEZAML.js?v=56f829d0:21550
+[    2028ms] [WARNING] 
+%c⚠️ Browser Environment Detected %c
+
+%cOnly UI previews are available in the browser. For full functionality, please run the application in desktop mode.
+More information at: https://v3.wails.io/learn/build/#using-a-browser-for-development
+ background: #ffffff; color: #000000; font-weight: bold; padding: 4px 8px; border-radius: 4px; border: 2px solid #000000; background: transparent; color: #ffffff; font-style: italic; font-weight: bold; @ http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:110
+[    2040ms] [INFO] 🌐 i18next is made possible by our own product, Locize — consider powering your project with managed localization (AI, CDN, integrations): https://locize.com 💙 @ http://localhost:5173/node_modules/.vite/deps/chunk-RMV57XKV.js?v=56f829d0:1802
+[    2050ms] [LOG] 🔍 检查 window 对象属性: @ http://localhost:5173/src/App.tsx:37
+[    2051ms] [LOG] 找到 Wails 相关属性: [cancelIdleCallback, requestIdleCallback, _wails] @ http://localhost:5173/src/App.tsx:41
+[    2053ms] [LOG]   - cancelIdleCallback: function @ http://localhost:5173/src/App.tsx:43
+[    2053ms] [LOG]   - requestIdleCallback: function @ http://localhost:5173/src/App.tsx:43
+[    2053ms] [LOG]   - _wails: object @ http://localhost:5173/src/App.tsx:43
+[    2053ms] [LOG] window.wails: undefined @ http://localhost:5173/src/App.tsx:45
+[    2053ms] [LOG] window.Wails: undefined @ http://localhost:5173/src/App.tsx:46
+[    2068ms] [LOG] 所有全局函数 (前20个): [alert, atob, blur, btoa, cancelAnimationFrame, cancelIdleCallback, captureEvents, clearInterval, clearTimeout, close, confirm, createImageBitmap, fetch, find, focus, getComputedStyle, getSelection, matchMedia, moveBy, moveTo] @ http://localhost:5173/src/App.tsx:48
+[    2132ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/custom.js:0
+[    2208ms] [LOG] [hostsApi] getPlatformInfo 调用 @ http://localhost:5173/src/api/hosts.ts:101
+[    2211ms] [LOG] [hostsApi] getPlatformInfo 调用 @ http://localhost:5173/src/api/hosts.ts:101
+[    2216ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[    2228ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[    2228ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[    2228ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[    2228ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[    2229ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[    2229ms] [ERROR] Failed to load groups: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
+[    2230ms] [ERROR] Failed to load versions: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
+[    2230ms] [ERROR] Failed to load platform info: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
+[    2231ms] [ERROR] Failed to load groups: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
+[    2231ms] [ERROR] Failed to load versions: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
+[    2231ms] [ERROR] Failed to load platform info: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
+[   69388ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/wails/runtime:0
+[   69389ms] [ERROR] Failed to create group: Error
+    at runtimeCallWithID (http://localhost:5173/node_modules/.vite/deps/@wailsio_runtime.js?v=5bf34d70:71:11) @ http://localhost:5173/src/main.tsx:19
