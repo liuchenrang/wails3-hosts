@@ -140,6 +140,8 @@ jobs:
       - name: Package with NSIS installer
         run: |
           choco install nsis -y --no-progress
+          $nsisDir = "${env:ProgramFiles(x86)}\NSIS"
+          $env:Path += ";$nsisDir"
           $version = if ("${{ github.ref_name }}" -match "^v(.+)$") { $matches[1] } else { "1.0.5" }
           $nsisScript = @"
           !define APP_NAME "Hosts Manager"
@@ -175,7 +177,7 @@ jobs:
           "@
           Set-Content -Path "bin\installer.nsi" -Value $nsisScript -Encoding UTF8
           cd bin
-          makensis installer.nsi
+          & "$nsisDir\makensis.exe" installer.nsi
         shell: pwsh
 
       - name: Create ZIP archive
