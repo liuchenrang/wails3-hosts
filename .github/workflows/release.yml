@@ -125,7 +125,7 @@ jobs:
         run: |
           go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
           goversioninfo -icon=build/windows/icon.ico -manifest=build/windows/wails.exe.manifest -o resource.syso build/windows/info.json
-        shell: pwsh
+        shell: bash
 
       - name: Build application
         run: |
