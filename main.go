@@ -132,7 +132,7 @@ type buildInfo struct {
 func getBuildInfo() buildInfo {
 	return buildInfo{
 		appName:   "Hosts Manager",
-		version:   "1.1.6",
+		version:   "1.1.7",
 		website:   "https://www.haogongjua.cn/",
 		introText: "跨平台 hosts 文件管理工具",
 	}

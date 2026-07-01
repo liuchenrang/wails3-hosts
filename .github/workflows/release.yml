@@ -148,7 +148,7 @@ jobs:
           !define APP_VERSION "$version"
           !define APP_EXE "hosts-manager.exe"
           !define OUT_FILE "hosts-manager-windows-amd64-setup.exe"
-          OutFile "..\$\{OUT_FILE}"
+          OutFile "..\`${OUT_FILE}"
           InstallDir "`$PROGRAMFILES64\Hosts Manager"
           RequestExecutionLevel admin
           Page directory
