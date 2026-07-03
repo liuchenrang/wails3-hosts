@@ -22,6 +22,10 @@ func NewPrivilegeElevator() (PrivilegeElevator, error) {
 	return NewWindowsElevator()
 }
 
+// AdminModeFlag 管理员模式子进程标志
+// 由 restartWithAdmin 传入，main.go 启动时通过 HandleAdminMode 检测
+const AdminModeFlag = "--admin-mode"
+
 var (
 	// ErrUACCancelled 用户取消了 UAC 提权
 	ErrUACCancelled = fmt.Errorf("用户取消了管理员权限确认，无法应用 hosts 配置")
@@ -251,7 +255,7 @@ func (e *WindowsElevator) restartWithAdmin(tmpFile string) error {
 
 	// 构建命令行参数
 	// 格式: <executable> --admin-mode <temp-file>
-	args := fmt.Sprintf("%s --admin-mode %s", execPath, tmpFile)
+	args := fmt.Sprintf("%s %s %s", execPath, AdminModeFlag, tmpFile)
 
 	// 转换为 UTF-16 指针（Windows API 要求）
 	execPathPtr, _ := windows.UTF16PtrFromString(execPath)
@@ -349,6 +353,35 @@ func (e *WindowsElevator) ExecuteAsAdmin(tmpPath string) error {
 	os.Remove(tmpPath)
 
 	return nil
+}
+
+// HandleAdminMode 检测并处理 UAC 提权后的管理员子进程
+// 由 main.go 在创建 GUI 应用前无条件调用
+//
+// 背景: restartWithAdmin 以 "<exe> --admin-mode <tempfile>" 重启进程，
+// 此函数识别该参数，读取临时文件并写入 hosts 文件，然后直接退出进程，
+// 避免管理员子进程错误地启动第二个完整的 GUI 窗口。
+//
+// 返回: 是否命中管理员模式（命中时本函数不会返回，会直接 os.Exit）
+func HandleAdminMode() bool {
+	if len(os.Args) < 3 || os.Args[1] != AdminModeFlag {
+		return false
+	}
+
+	elevator, err := NewWindowsElevator()
+	if err != nil {
+		fmt.Println("[AdminMode] 创建提升器失败:", err)
+		os.Exit(1)
+	}
+
+	if err := elevator.ExecuteAsAdmin(os.Args[2]); err != nil {
+		fmt.Println("[AdminMode] 写入 hosts 失败:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("[AdminMode] 写入 hosts 成功")
+	os.Exit(0)
+	return true
 }
 
 // 运行时检查

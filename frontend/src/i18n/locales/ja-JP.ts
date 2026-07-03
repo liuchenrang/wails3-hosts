@@ -115,6 +115,7 @@ export const jaJP = {
       version: 'バージョン',
       email: '連絡先メール',
       description: 'シンプルで効率的な hosts ファイル管理ツール',
+      website: 'ウェブサイトを訪問',
     },
   },
 }

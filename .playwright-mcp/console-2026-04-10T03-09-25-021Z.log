@@ -1,0 +1,72 @@
+[     731ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:21579
+[     822ms] [LOG] 扫码监听已启动 @ http://localhost:5173/com/HandScanBar.ts:114
+[     964ms] [LOG] 开始检查激活状态... @ http://localhost:5173/App.tsx?t=1775751528324:127
+[     964ms] [LOG] 调用 AuthApi.init()... @ http://localhost:5173/App.tsx?t=1775751528324:132
+[     965ms] [LOG] 🔧 加载自动调度配置... @ http://localhost:5173/App.tsx?t=1775751528324:219
+[     966ms] [LOG] init global scan @ http://localhost:5173/com/HandScanBar.ts:73
+[     966ms] [LOG] 扫码监听已停止 @ http://localhost:5173/com/HandScanBar.ts:91
+[     966ms] [LOG] 扫码监听已启动 @ http://localhost:5173/com/HandScanBar.ts:114
+[     966ms] [LOG] 🚀 扫码监控已启动 @ http://localhost:5173/App.tsx?t=1775751528324:270
+[     967ms] [LOG] 扫码监听已停止 @ http://localhost:5173/com/HandScanBar.ts:91
+[     968ms] [LOG] 开始检查激活状态... @ http://localhost:5173/App.tsx?t=1775751528324:127
+[     968ms] [LOG] 调用 AuthApi.init()... @ http://localhost:5173/App.tsx?t=1775751528324:132
+[     968ms] [LOG] 🔧 加载自动调度配置... @ http://localhost:5173/App.tsx?t=1775751528324:219
+[     968ms] [LOG] init global scan @ http://localhost:5173/com/HandScanBar.ts:73
+[     968ms] [LOG] 扫码监听已启动 @ http://localhost:5173/com/HandScanBar.ts:114
+[     968ms] [LOG] 🚀 扫码监控已启动 @ http://localhost:5173/App.tsx?t=1775751528324:270
+[     970ms] [LOG] AuthApi.init() 返回结果: {
+  "data": {
+    "no": ""
+  },
+  "success": false,
+  "errMessage": "Cannot read properties of undefined (reading 'success')"
+} @ http://localhost:5173/App.tsx?t=1775751528324:134
+[     970ms] [LOG] init 接口调用失败，errCode: undefined errMessage: Cannot read properties of undefined (reading 'success') @ http://localhost:5173/App.tsx?t=1775751528324:149
+[     971ms] [WARNING] API初始化失败，降级到本地激活状态检查: Cannot read properties of undefined (reading 'success') @ http://localhost:5173/App.tsx?t=1775751528324:153
+[     971ms] [ERROR] ❌ 加载自动调度配置失败: TypeError: Cannot read properties of undefined (reading 'ipcRenderer')
+    at ipcRendererInvoke (http://localhost:5173/system/os.ts:4:23)
+    at System.getConfig (http://localhost:5173/system/index.ts:6:30)
+    at loadAutoSchedulingConfig (http://localhost:5173/App.tsx?t=1775751528324:221:55)
+    at http://localhost:5173/App.tsx?t=1775751528324:450:9
+    at commitHookEffectListMount (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:16936:34)
+    at commitPassiveMountOnFiber (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:18184:19)
+    at commitPassiveMountEffects_complete (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:18157:17)
+    at commitPassiveMountEffects_begin (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:18147:15)
+    at commitPassiveMountEffects (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:18137:11)
+    at flushPassiveEffectsImpl (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:19518:11) @ http://localhost:5173/App.tsx?t=1775751528324:225
+[     972ms] [LOG] AuthApi.init() 返回结果: {
+  "data": {
+    "no": ""
+  },
+  "success": false,
+  "errMessage": "Cannot read properties of undefined (reading 'success')"
+} @ http://localhost:5173/App.tsx?t=1775751528324:134
+[     972ms] [LOG] init 接口调用失败，errCode: undefined errMessage: Cannot read properties of undefined (reading 'success') @ http://localhost:5173/App.tsx?t=1775751528324:149
+[     972ms] [WARNING] API初始化失败，降级到本地激活状态检查: Cannot read properties of undefined (reading 'success') @ http://localhost:5173/App.tsx?t=1775751528324:153
+[     972ms] [ERROR] ❌ 加载自动调度配置失败: TypeError: Cannot read properties of undefined (reading 'ipcRenderer')
+    at ipcRendererInvoke (http://localhost:5173/system/os.ts:4:23)
+    at System.getConfig (http://localhost:5173/system/index.ts:6:30)
+    at loadAutoSchedulingConfig (http://localhost:5173/App.tsx?t=1775751528324:221:55)
+    at http://localhost:5173/App.tsx?t=1775751528324:450:9
+    at commitHookEffectListMount (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:16936:34)
+    at invokePassiveEffectMountInDEV (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:18352:19)
+    at invokeEffectsInDev (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:19729:19)
+    at commitDoubleInvokeEffectsInDEV (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:19714:15)
+    at flushPassiveEffectsImpl (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:19531:13)
+    at flushPassiveEffects (http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-ZXN67JHZ.js?v=0e225320:19475:22) @ http://localhost:5173/App.tsx?t=1775751528324:225
+[     972ms] [ERROR] 本地激活状态检查也失败: TypeError: Cannot read properties of undefined (reading 'success')
+    at http://localhost:5173/App.tsx?t=1775751528324:157:41 @ http://localhost:5173/App.tsx?t=1775751528324:170
+[     973ms] [LOG] 激活状态检查完成 @ http://localhost:5173/App.tsx?t=1775751528324:212
+[     973ms] [ERROR] 本地激活状态检查也失败: TypeError: Cannot read properties of undefined (reading 'success')
+    at http://localhost:5173/App.tsx?t=1775751528324:157:41 @ http://localhost:5173/App.tsx?t=1775751528324:170
+[     973ms] [LOG] 激活状态检查完成 @ http://localhost:5173/App.tsx?t=1775751528324:212
+[    1006ms] TypeError: Cannot read properties of undefined (reading 'success')
+    at http://localhost:5173/App.tsx?t=1775751528324:424:24
+[    1006ms] TypeError: Cannot read properties of undefined (reading 'success')
+    at http://localhost:5173/App.tsx?t=1775751528324:435:21
+[    1007ms] TypeError: Cannot read properties of undefined (reading 'success')
+    at http://localhost:5173/App.tsx?t=1775751528324:424:24
+[    1008ms] TypeError: Cannot read properties of undefined (reading 'success')
+    at http://localhost:5173/App.tsx?t=1775751528324:435:21
+[     980ms] [ERROR] Warning: [antd: Card] `bodyStyle` is deprecated. Please use `styles.body` instead. @ http://localhost:5173/@fs/Users/chen/IdeaProjects/ai-print/node_modules/.vite/deps/chunk-XATV3Y23.js?v=0e225320:2114
+[    1064ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/vite.svg:0

@@ -115,6 +115,7 @@ export const enUS = {
       version: 'Version',
       email: 'Contact Email',
       description: 'A simple and efficient hosts file management tool',
+      website: 'Visit Website',
     },
   },
 }

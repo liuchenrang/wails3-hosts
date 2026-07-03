@@ -1,0 +1,10 @@
+- generic [ref=e5]:
+  - img "exclamation-circle" [ref=e7]:
+    - img [ref=e8]
+  - heading "软件初始化失败" [level=3] [ref=e12]
+  - generic [ref=e13]: "初始化失败: Cannot read properties of undefined (reading 'success')"
+  - button "reload 立即刷新" [ref=e15] [cursor=pointer]:
+    - img "reload" [ref=e17]:
+      - img [ref=e18]
+    - generic [ref=e20]: 立即刷新
+  - generic [ref=e21]: 如果问题持续存在，请检查网络连接或联系技术支持

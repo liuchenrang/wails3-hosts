@@ -67,7 +67,7 @@ function App() {
   const [conflicts, setConflicts] = useState({})
   const [showConflicts, setShowConflicts] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
-  const [aboutInfo, setAboutInfo] = useState<{ version?: string; email?: string }>({})
+  const [aboutInfo, setAboutInfo] = useState<{ name?: string; version?: string; website?: string }>({})
   const [isCheckingPasswordCache, setIsCheckingPasswordCache] = useState(false)
   const [platformInfo, setPlatformInfo] = useState<{
     os: string
@@ -119,7 +119,7 @@ function App() {
     try {
       if (typeof window !== 'undefined' && (window as any).EventsOn) {
         // 监听"关于我们"对话框事件
-        ;(window as any).EventsOn('show-about-dialog', (data: { version?: string; email?: string }) => {
+        ;(window as any).EventsOn('show-about-dialog', (data: { name?: string; version?: string; website?: string }) => {
           setAboutInfo(data)
           setShowAbout(true)
         })
@@ -584,8 +584,9 @@ function App() {
         <AboutDialog
           isOpen={showAbout}
           onClose={() => setShowAbout(false)}
+          name={aboutInfo.name}
           version={aboutInfo.version}
-          email={aboutInfo.email}
+          website={aboutInfo.website}
         />
       </div>
     </>

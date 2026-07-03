@@ -1,0 +1,23 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Hosts Manager" [level=1] [ref=e6]
+      - paragraph [ref=e7]: 跨平台 hosts 文件管理工具
+    - generic [ref=e8]:
+      - button "版本历史" [ref=e9] [cursor=pointer]:
+        - img [ref=e10]
+        - text: 版本历史
+      - button [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "分组列表" [level=2] [ref=e20]
+        - paragraph [ref=e21]: 0 个分组
+        - button "新建分组" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+          - text: 新建分组
+      - generic [ref=e26]:
+        - paragraph [ref=e27]: 暂无分组
+        - paragraph [ref=e28]: 点击上方按钮创建第一个分组
+    - generic [ref=e29]: 请选择或创建一个分组
