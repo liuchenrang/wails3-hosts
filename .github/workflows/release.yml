@@ -123,8 +123,8 @@ jobs:
 
       - name: Embed Windows icon and version info
         run: |
-          go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
-          goversioninfo -icon=build/windows/icon.ico -manifest=build/windows/wails.exe.manifest -o resource.syso build/windows/info.json
+          go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha.93
+          wails3 generate syso -arch ${{ matrix.arch }} -icon build/windows/icon.ico -manifest build/windows/wails.exe.manifest -info build/windows/info.json -out wails_windows_${{ matrix.arch }}.syso
         shell: bash
 
       - name: Build application
