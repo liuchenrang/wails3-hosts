@@ -144,15 +144,26 @@ jobs:
           $env:Path += ";$nsisDir"
           $version = if ("${{ github.ref_name }}" -match "^v(.+)$") { $matches[1] } else { "1.0.5" }
           $nsisScript = @"
+          !include "MUI2.nsh"
           !define APP_NAME "Hosts Manager"
           !define APP_VERSION "$version"
           !define APP_EXE "hosts-manager.exe"
           !define OUT_FILE "hosts-manager-windows-amd64-setup.exe"
+          Name "Hosts Manager"
           OutFile "`${OUT_FILE}"
           InstallDir "`$PROGRAMFILES64\Hosts Manager"
           RequestExecutionLevel admin
-          Page directory
-          Page instfiles
+
+          !define MUI_ABORTWARNING
+
+          !insertmacro MUI_PAGE_DIRECTORY
+          !insertmacro MUI_PAGE_INSTFILES
+          !insertmacro MUI_UNPAGE_CONFIRM
+          !insertmacro MUI_UNPAGE_INSTFILES
+
+          !insertmacro MUI_LANGUAGE "SimpChinese"
+          !insertmacro MUI_LANGUAGE "English"
+
           Section
             SetOutPath `$INSTDIR
             File "hosts-manager.exe"
